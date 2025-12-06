@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MK Esports - Official App</title>
     
-    <!-- Design Engine -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & Firebase Engine -->
     <script type="importmap">
     {
         "imports": {
@@ -17,8 +15,7 @@
             "lucide-react": "https://esm.sh/lucide-react@0.344.0?bundle",
             "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
             "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
-            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js",
-            "firebase/storage": "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js"
+            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
         }
     }
     </script>
@@ -29,11 +26,473 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #020617; color: #cbd5e1; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
         .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); }
-        /* Animation for loading */
-        @keyframes pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .animate-pulse-glow { animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 </head>
+<body>
+    <div id="root"></div>
+
+    <script type="module">
+        import React, { useState, useEffect } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import * as LucideIcons from 'lucide-react';
+        
+        const Icon = ({ name, size = 24, className }) => {
+            const LucideIcon = LucideIcons[name];
+            if (!LucideIcon) return null;
+            return React.createElement(LucideIcon, { size, className });
+        };
+
+        // ==================================================================
+        // 🔴 YAHAN APNI ASLI FIREBASE CONFIG DALO
+        // ==================================================================
+        const firebaseConfig = {
+  apiKey: "AIzaSyBJWklGdsRM_XNo2_4AUceUZsiIyIjbUBA",
+  authDomain: "mk-esports-60429.firebaseapp.com",
+  projectId: "mk-esports-60429",
+  storageBucket: "mk-esports-60429.firebasestorage.app",
+  messagingSenderId: "663019221754",
+  appId: "1:663019221754:web:d75e59277feb0ac12a8f43",
+  measurementId: "G-QJHXYR70RG"
+};
+        // ==================================================================
+
+        import { initializeApp } from 'firebase/app';
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
+
+        const isDemo = firebaseConfig.apiKey.includes("DUMMY");
+        let auth, db;
+        
+        try {
+            if (!isDemo) {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            }
+        } catch (e) { console.error("Firebase Init Error", e); }
+
+        // --- SETTINGS ---
+        const ADMIN_NUMBER = "0000"; 
+        const STAFF_NUMBER = "1111";
+        const DEFAULT_ADMIN_PASS = "admin123";
+        const DEFAULT_STAFF_PASS = "staff123";
+        
+        const ADMIN_UPI_ID = '6394562344-@ybl';
+        const QR_PLACEHOLDER_URL = 'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg'; 
+        
+        const MAX_PLAYERS_PER_ROOM = 48;
+        const PRESET_AMOUNTS = [50, 100, 200, 500, 1000, 2000];
+
+        const getFutureTime = (minutes) => Date.now() + minutes * 60 * 1000;
+        
+        const IMAGES = {
+            SOLO: "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=1974&auto=format&fit=crop", 
+            DUO: "https://images.unsplash.com/photo-1642387994262-ba9223e7161b?q=80&w=2070&auto=format&fit=crop", 
+            SQUAD: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop", 
+            LAN: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop"
+        };
+
+        const getRoomStatus = (totalJoined) => {
+            const currentRoom = Math.floor(totalJoined / MAX_PLAYERS_PER_ROOM) + 1;
+            const inCurrentRoom = totalJoined % MAX_PLAYERS_PER_ROOM;
+            return { currentRoom, inCurrentRoom };
+        };
+
+        // 🔴 CHANGED HERE: joined: 0 kar diya hai sabka
+        const INITIAL_MATCHES = [
+            { id: 'sq_10am', title: 'Morning Squad Rush', mode: 'SQUAD', entryFee: 150, prizePool: '₹1,500', map: 'Bermuda', time: '10:40 AM', startTimeMs: getFutureTime(30), joined: 0, totalSlots: 480, image: IMAGES.SQUAD, roomId: {}, roomPass: {} },
+            { id: 'sl_11am', title: 'Solo Sniper Only', mode: 'SOLO', entryFee: 50, prizePool: '₹2,000', map: 'Bermuda', time: '11:00 AM', startTimeMs: getFutureTime(60), joined: 0, totalSlots: 480, image: IMAGES.SOLO, roomId: {}, roomPass: {} },
+            { id: 'sq_2pm', title: 'Afternoon Warfare', mode: 'SQUAD', entryFee: 150, prizePool: '₹1,500', map: 'Purgatory', time: '02:00 PM', startTimeMs: getFutureTime(240), joined: 0, totalSlots: 480, image: IMAGES.SQUAD, roomId: {}, roomPass: {} },
+            { id: 'du_4pm', title: 'Duo Deathmatch', mode: 'DUO', entryFee: 150, prizePool: '₹2,000', map: 'Purgatory', time: '04:00 PM', startTimeMs: getFutureTime(360), joined: 0, totalSlots: 480, image: IMAGES.DUO, roomId: {}, roomPass: {} },
+            { id: 'sq_6pm', title: 'Evening Elite Cup', mode: 'SQUAD', entryFee: 150, prizePool: '₹1,500', map: 'Kalahari', time: '06:00 PM', startTimeMs: getFutureTime(480), joined: 0, totalSlots: 480, image: IMAGES.SQUAD, roomId: {}, roomPass: {} },
+            { id: 'lan1', title: 'MK LAN MEGA EVENT', mode: 'LAN', entryFee: 500, prizePool: '₹1,00,000', map: 'Delhi Arena', time: 'Dec 25th', startTimeMs: getFutureTime(100000), joined: 0, totalSlots: 1000, type: 'lan', image: IMAGES.LAN, roomId: {}, roomPass: {} }
+        ];
+
+        // --- COMPONENTS ---
+        const CountdownTimer = ({ targetTimeMs }) => {
+            if (!targetTimeMs) return null;
+            const [timeLeft, setTimeLeft] = useState(targetTimeMs - Date.now());
+            useEffect(() => {
+                const interval = setInterval(() => setTimeLeft(targetTimeMs - Date.now()), 1000);
+                return () => clearInterval(interval);
+            }, [targetTimeMs]);
+            const formatTime = (ms) => {
+                if (ms <= 0) return 'LIVE NOW';
+                const hours = Math.floor(ms / 3600000);
+                const minutes = Math.floor((ms % 3600000) / 60000);
+                return `${hours}h ${minutes}m`;
+            };
+            return React.createElement('span', { className: "font-mono font-bold text-cyan-400 text-xs" }, formatTime(timeLeft));
+        };
+
+        const Button = ({ children, onClick, variant = 'primary', className = '', disabled = false }) => {
+            const baseStyle = "relative font-black uppercase tracking-wider transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 overflow-hidden clip-path-slant";
+            const variants = {
+                primary: "bg-cyan-600 text-black hover:bg-cyan-400 py-3 px-4 text-sm shadow-[0_0_15px_rgba(6,182,212,0.4)]",
+                secondary: "bg-slate-800 text-cyan-400 border border-cyan-500/50 py-2 px-3 text-xs",
+                staff: "bg-yellow-500 text-black border border-yellow-400 py-2 px-3 text-xs font-mono",
+                danger: "bg-red-600 text-white border border-red-500 py-3 px-4 text-sm",
+                success: "bg-emerald-600 text-black hover:bg-emerald-400 py-3 px-4 text-sm"
+            };
+            return React.createElement('button', { 
+                onClick, disabled, 
+                className: `${baseStyle} ${variants[variant]} ${disabled ? 'opacity-50 grayscale' : ''} ${className}`,
+                style: { clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }
+            }, children);
+        };
+
+        const Card3D = ({ children, className = '', glow = 'cyan', image }) => {
+            const glowColors = {
+                cyan: 'border-cyan-500/50 shadow-[0_10px_30px_rgba(6,182,212,0.15)]',
+                gold: 'border-yellow-500/50 shadow-[0_10px_30px_rgba(234,179,8,0.15)]',
+                red: 'border-red-500/50 shadow-[0_10px_30px_rgba(239,68,68,0.15)]'
+            };
+            return React.createElement('div', { className: `relative bg-slate-950 rounded-2xl border overflow-hidden group hover:scale-[1.01] transition-transform ${glowColors[glow]} ${className}` },
+                image && React.createElement('div', { className: "absolute inset-0 z-0" }, 
+                    React.createElement('img', { src: image, className: "w-full h-full object-cover opacity-40 mix-blend-overlay" })
+                ),
+                React.createElement('div', { className: "absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent z-0" }),
+                React.createElement('div', { className: "relative z-20 p-4" }, children)
+            );
+        };
+
+        function App() {
+            const [appLoading, setAppLoading] = useState(true);
+            const [user, setUser] = useState(null);
+            const [view, setView] = useState('auth'); 
+            const [authMode, setAuthMode] = useState('login');
+            const [userProfile, setUserProfile] = useState(null);
+            
+            // Note: We use local state for matches, but in a real app, this should be synced from DB
+            const [matches, setMatches] = useState(INITIAL_MATCHES);
+            
+            const [mobileNumber, setMobileNumber] = useState('');
+            const [password, setPassword] = useState('');
+            const [confirmPass, setConfirmPass] = useState('');
+            const [loadingText, setLoadingText] = useState('');
+            
+            const [showJoinModal, setShowJoinModal] = useState(false);
+            const [showTermsModal, setShowTermsModal] = useState(false);
+            const [joiningMatch, setJoiningMatch] = useState(null);
+            const [playerDetails, setPlayerDetails] = useState([]);
+
+            const [showStaffPanel, setShowStaffPanel] = useState(false);
+            const [staffSelectedMatch, setStaffSelectedMatch] = useState(null);
+            const [staffRoomId, setStaffRoomId] = useState('');
+            const [staffRoomPass, setStaffRoomPass] = useState('');
+            const [staffSelectedRoomNum, setStaffSelectedRoomNum] = useState(1);
+
+            const [depositAmount, setDepositAmount] = useState('');
+            const [utrNumber, setUtrNumber] = useState('');
+            const [proofImage, setProofImage] = useState(null);
+            const [pendingDeposits, setPendingDeposits] = useState([]);
+
+            const [mockParticipants, setMockParticipants] = useState([]);
+
+            useEffect(() => {
+                if (isDemo) {
+                    const savedUser = localStorage.getItem('demo_user');
+                    if (savedUser) {
+                        setUser({ uid: 'demo' });
+                        setUserProfile(JSON.parse(savedUser));
+                        setView('home');
+                    }
+                    setAppLoading(false);
+                    return;
+                }
+
+                const unsub = onAuthStateChanged(auth, async (u) => {
+                    if (u) {
+                        setUser(u);
+                        try {
+                            const ref = doc(db, 'artifacts', 'mk-esports-v1', 'users', u.uid, 'profile', 'main');
+                            onSnapshot(ref, (s) => {
+                                if (s.exists()) {
+                                    setUserProfile(s.data());
+                                    setView('home');
+                                }
+                                setAppLoading(false);
+                            }, (err) => setAppLoading(false));
+                        } catch (e) { console.error(e); setAppLoading(false); }
+                    } else {
+                        setView('auth');
+                        setAppLoading(false);
+                    }
+                });
+                return () => unsub();
+            }, []);
+
+            const handleRegister = async () => {
+                if(!mobileNumber || mobileNumber.length < 10) return alert("Enter valid Mobile Number");
+                if(!password || password.length < 4) return alert("Password too short");
+                if(password !== confirmPass) return alert("Passwords do not match");
+                
+                setLoadingText("Creating Account...");
+
+                if (isDemo) {
+                    alert("Demo: Account Created! Login now.");
+                    setAuthMode('login');
+                    setLoadingText("");
+                    return;
+                }
+
+                try {
+                    const userCred = await signInAnonymously(auth);
+                    const uid = userCred.user.uid;
+                    
+                    // We store using Mobile Number as ID for Login lookup
+                    const userRef = doc(db, 'artifacts', 'mk-esports-v1', 'users', mobileNumber);
+                    const snap = await getDoc(userRef);
+                    
+                    if (snap.exists()) {
+                        setLoadingText("");
+                        return alert("User already exists!");
+                    }
+
+                    await setDoc(userRef, {
+                        mobile: mobileNumber,
+                        password: password,
+                        displayName: `Player_${mobileNumber.slice(-4)}`,
+                        walletBalance: 50,
+                        role: 'USER',
+                        myMatches: [],
+                        uid: uid,
+                        createdAt: serverTimestamp()
+                    });
+
+                    // Also create the profile link for auth state listener
+                    await setDoc(doc(db, 'artifacts', 'mk-esports-v1', 'users', uid, 'profile', 'main'), {
+                        mobile: mobileNumber,
+                        password: password,
+                        displayName: `Player_${mobileNumber.slice(-4)}`,
+                        walletBalance: 50,
+                        role: 'USER',
+                        myMatches: []
+                    });
+
+                    alert("Registration Successful! Please Login.");
+                    setAuthMode('login');
+                    setLoadingText("");
+
+                } catch (e) {
+                    setLoadingText("");
+                    alert("Registration Failed: " + e.message);
+                }
+            };
+
+            const handleLogin = async () => {
+                if(!mobileNumber || !password) return alert("Fill all fields");
+                setLoadingText("Checking...");
+
+                if (mobileNumber === ADMIN_NUMBER || mobileNumber === STAFF_NUMBER) {
+                    const reqPass = mobileNumber === ADMIN_NUMBER ? DEFAULT_ADMIN_PASS : DEFAULT_STAFF_PASS;
+                    const role = mobileNumber === ADMIN_NUMBER ? "OWNER" : "STAFF";
+                    if (password === reqPass) {
+                        setUserProfile({ displayName: role, walletBalance: 999999, role: role, myMatches: [] });
+                        setView('home');
+                        setLoadingText("");
+                        return;
+                    } else {
+                        setLoadingText("");
+                        return alert("Invalid Admin Password");
+                    }
+                }
+
+                if (isDemo) {
+                    const profile = { uid: "demo", displayName: `Player_${mobileNumber.slice(-4)}`, walletBalance: 50, role: 'USER', myMatches: [] };
+                    localStorage.setItem('demo_user', JSON.stringify(profile));
+                    setUserProfile(profile);
+                    setView('home');
+                    setLoadingText("");
+                    return;
+                }
+
+                try {
+                    if (!auth.currentUser) await signInAnonymously(auth);
+                    
+                    const userRef = doc(db, 'artifacts', 'mk-esports-v1', 'users', mobileNumber);
+                    const snap = await getDoc(userRef);
+
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data.password === password) {
+                            setUserProfile(data);
+                            // Link current auth UID to profile for realtime updates
+                            if(auth.currentUser.uid !== data.uid) {
+                                // Re-link if needed (simplified)
+                            }
+                            setView('home');
+                        } else {
+                            alert("Wrong Password!");
+                        }
+                    } else {
+                        alert("User Not Found. Please Register.");
+                    }
+                    setLoadingText("");
+                } catch (e) {
+                    alert("Error: " + e.message);
+                    setLoadingText("");
+                }
+            };
+
+            const initJoin = (match) => {
+                if(userProfile.role === 'STAFF') return;
+                if(userProfile.myMatches?.some(m => m.matchId === match.id)) { alert("Already Joined!"); return; }
+                if(userProfile.walletBalance < match.entryFee) { alert("Low Balance!"); setView('wallet'); return; }
+                setJoiningMatch(match);
+                setShowTermsModal(true);
+            };
+
+            const acceptTerms = () => {
+                setShowTermsModal(false);
+                const count = joiningMatch.mode === 'SQUAD' ? 4 : (joiningMatch.mode === 'DUO' ? 2 : 1);
+                setPlayerDetails(Array(count).fill().map((_, i) => ({ name: i===0 ? userProfile.displayName : '', uid: '' })));
+                setShowJoinModal(true);
+            };
+
+            const confirmJoin = async () => {
+                if(playerDetails.some(p => !p.name || !p.uid)) return alert("Fill all details!");
+                const { currentRoom } = getRoomStatus(joiningMatch.joined);
+                
+                // Update Local State
+                const newMatches = matches.map(m => m.id === joiningMatch.id ? {...m, joined: m.joined + 1} : m);
+                setMatches(newMatches);
+
+                const newProfile = {
+                    ...userProfile,
+                    walletBalance: userProfile.walletBalance - joiningMatch.entryFee,
+                    myMatches: [...(userProfile.myMatches || []), { matchId: joiningMatch.id, roomNum: currentRoom }]
+                };
+                setUserProfile(newProfile);
+
+                if (isDemo) {
+                    localStorage.setItem('demo_user', JSON.stringify(newProfile));
+                } else {
+                    // Update main user doc
+                    const userRef = doc(db, 'artifacts', 'mk-esports-v1', 'users', mobileNumber);
+                    await updateDoc(userRef, {
+                        walletBalance: increment(-joiningMatch.entryFee),
+                        myMatches: newProfile.myMatches
+                    });
+                    // Also update profile listener doc if they are different
+                    if(auth.currentUser) {
+                         const profileRef = doc(db, 'artifacts', 'mk-esports-v1', 'users', auth.currentUser.uid, 'profile', 'main');
+                         // We attempt update, if it exists
+                         try { await updateDoc(profileRef, { walletBalance: newProfile.walletBalance, myMatches: newProfile.myMatches }); } catch(e){}
+                    }
+                }
+                
+                alert(`Success! Joined Room ${currentRoom}`);
+                setShowJoinModal(false);
+            };
+
+            const handleDeposit = () => {
+                if(!depositAmount) return alert("Select Amount");
+                if(!utrNumber || utrNumber.length !== 12) return alert("Invalid UTR (Must be 12 chars)");
+                alert("Deposit Request Sent!");
+                setDepositAmount(""); setUtrNumber("");
+            };
+
+            const openStaffPanel = (match) => {
+                setStaffSelectedMatch(match);
+                setStaffSelectedRoomNum(1);
+                setStaffRoomId(match.roomId[1] || '');
+                setStaffRoomPass(match.roomPass[1] || '');
+                setShowStaffPanel(true);
+            };
+
+            const saveRoomDetails = () => {
+                const updatedMatch = { ...staffSelectedMatch };
+                if (!updatedMatch.roomId) updatedMatch.roomId = {};
+                if (!updatedMatch.roomPass) updatedMatch.roomPass = {};
+                updatedMatch.roomId[staffSelectedRoomNum] = staffRoomId;
+                updatedMatch.roomPass[staffSelectedRoomNum] = staffRoomPass;
+                setMatches(matches.map(m => m.id === updatedMatch.id ? updatedMatch : m));
+                alert(`Details Updated for Room ${staffSelectedRoomNum}!`);
+            };
+
+            const loadRoomDetailsForStaff = (roomNum) => {
+                setStaffSelectedRoomNum(roomNum);
+                setStaffRoomId(staffSelectedMatch.roomId[roomNum] || '');
+                setStaffRoomPass(staffSelectedMatch.roomPass[roomNum] || '');
+            };
+
+            if (appLoading) return React.createElement('div', {className: "min-h-screen flex items-center justify-center bg-slate-950 text-cyan-400"}, "LOADING...");
+
+            if(view === 'auth') {
+                return React.createElement('div', {className: "min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950"},
+                    isDemo && React.createElement('div', {className: "absolute top-4 bg-red-600 text-white px-4 py-2 rounded text-xs font-bold animate-pulse"}, "DEMO MODE"),
+                    React.createElement('div', {className: "w-24 h-24 bg-cyan-600 mb-6 flex items-center justify-center font-black text-4xl italic rounded-2xl shadow-[0_0_40px_rgba(6,182,212,0.5)]"}, "MK"),
+                    
+                    React.createElement('div', {className: "flex bg-slate-900 p-1 rounded-full mb-8 border border-slate-700"},
+                        React.createElement('button', {onClick: ()=>setAuthMode('login'), className: `px-6 py-2 rounded-full text-sm font-bold ${authMode==='login' ? 'bg-cyan-600 text-black' : 'text-slate-400'}`}, "LOGIN"),
+                        React.createElement('button', {onClick: ()=>setAuthMode('register'), className: `px-6 py-2 rounded-full text-sm font-bold ${authMode==='register' ? 'bg-cyan-600 text-black' : 'text-slate-400'}`}, "REGISTER")
+                    ),
+
+                    React.createElement('div', {className: "w-full space-y-4"},
+                        React.createElement('input', {onChange: e=>setMobileNumber(e.target.value), type: "number", placeholder: "Mobile Number", className: "w-full bg-black border border-slate-700 p-4 text-white font-mono rounded-lg outline-none focus:border-cyan-500"}),
+                        React.createElement('input', {onChange: e=>setPassword(e.target.value), type: "password", placeholder: "Password", className: "w-full bg-black border border-slate-700 p-4 text-white font-mono rounded-lg outline-none focus:border-cyan-500"}),
+                        authMode === 'register' && React.createElement('input', {onChange: e=>setConfirmPass(e.target.value), type: "password", placeholder: "Confirm Password", className: "w-full bg-black border border-slate-700 p-4 text-white font-mono rounded-lg outline-none focus:border-cyan-500"}),
+                        
+                        React.createElement(Button, {
+                            onClick: authMode === 'login' ? handleLogin : handleRegister, 
+                            disabled: !!loadingText,
+                            className: "w-full py-4 text-lg mt-4"
+                        }, loadingText || (authMode === 'login' ? "LOGIN NOW" : "CREATE ACCOUNT"))
+                    )
+                );
+            }
+
+            if (!userProfile) return null;
+
+            const isStaffOrOwner = userProfile?.role === 'OWNER' || userProfile?.role === 'STAFF';
+
+            return React.createElement('div', {className: "min-h-screen pb-24 relative"},
+                React.createElement('div', {className: "sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-white/10 px-4 py-3 flex justify-between items-center"},
+                    React.createElement('div', {className: "flex items-center gap-2"}, 
+                        React.createElement('div', {className: "w-8 h-8 bg-cyan-600 flex items-center justify-center font-black text-white italic rounded"}, "MK"),
+                        userProfile.role !== 'USER' && React.createElement('span', {className: "bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold"}, userProfile.role)
+                    ),
+                    !isStaffOrOwner && React.createElement('div', {className: "flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-full border border-slate-700"},
+                        React.createElement(Icon, {name: "Wallet", size: 14, className: "text-yellow-400"}),
+                        React.createElement('span', {className: "text-sm font-bold text-white"}, `₹${userProfile.walletBalance}`)
+                    )
+                ),
+
+                React.createElement('div', {className: "p-2"},
+                    view === 'home' && React.createElement('div', {className: "space-y-4 pt-2"},
+                        matches.map(match => {
+                            const { currentRoom, inCurrentRoom } = getRoomStatus(match.joined);
+                            const isJoined = userProfile?.myMatches?.some(m => m.matchId === match.id);
+                            return React.createElement(Card3D, {key: match.id, image: match.image, glow: isStaffOrOwner ? "red" : "cyan"},
+                                React.createElement('div', {className: "flex justify-between mb-4 relative z-10"},
+                                    React.createElement('span', {className: "bg-cyan-900/80 text-cyan-400 px-2 py-1 text-[10px] font-bold uppercase rounded"}, match.mode),
+                                    React.createElement('span', {className: "text-emerald-400 font-black text-lg"}, match.prizePool)
+                                ),
+                                React.createElement('h3', {className: "text-xl font-black text-white italic relative z-10"}, match.title),
+                                React.createElement('div', {className: "flex items-center justify-between mt-2 text-xs text-slate-300 relative z-10"},
+                                    React.createElement('span', {className: "font-mono text-cyan-300 font-bold"}, `Room ${currentRoom}: ${inCurrentRoom}/48`),
+                                    React.createElement(CountdownTimer, {targetTimeMs: match.startTimeMs})
+                                ),
+                                React.createElement('div', {className: "mt-4 relative z-10"},
+                                    isStaffOrOwner ? 
+                                    React.createElement(Button, {onClick: ()=>openStaffPanel(match), variant: "staff", className: "w-full"}, "MANAGE ROOMS") :
+                                    React.createElement(Button, {onClick: ()=>initJoin(match), variant: isJoined ? 'secondary' : 'primary', className: "w-full"}, isJoined ? "JOINED" : `JOIN ₹${match.entryFee}`)
+                                )
+                            );
+                        })
+                    ),
+
+                    view === 'matches' && React.createElement('div', {className: "space-y-4 pt-2"},
+                        (!userProfile.myMatches || userProfile.myMatches.length === 0) ? 
+                        React.createElement('p', {className: "text-center text-slate-500 mt-10"}, "No matches joined yet.") :
+                        userProfile.myMatches.map((m, i) => {
+                            const matchData = matches.find(match => match.id === m.matchId);
+                            const rId = matchData?.roomId[m.roomNum] || "WAITING...";
+                            const rPass = matchData?.roomPass[m.roomNum] || "WAITING...";
+                            return React.createElement(Card3D, {key
+
+
 <body>
     <div id="root"></div>
 
