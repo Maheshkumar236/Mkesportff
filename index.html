@@ -3,39 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MK Esports - Ultimate Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script type="importmap">
-    {
-        "imports": {
-            "react": "https://esm.sh/react@18.2.0",
-            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-            "lucide-react": "https://esm.sh/lucide-react@0.344.0?bundle",
-            "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
-            "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
-            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
-        }
-    }
-    </script>
+    <title>MK Esports - Connection Test</title>
     <style>
-        .clip-path-slant { clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { background-color: #020617; color: #cbd5e1; font-family: sans-serif; }
+        body { background: black; color: white; font-family: monospace; padding: 20px; }
+        .box { border: 2px solid gray; padding: 15px; margin-bottom: 20px; border-radius: 10px; }
+        .success { border-color: green; color: lightgreen; }
+        .error { border-color: red; color: #ff9999; }
+        button { padding: 15px; width: 100%; font-size: 18px; background: blue; color: white; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <h1>SYSTEM DIAGNOSTIC</h1>
+    <p>Is screen ka screenshot lekar mujhe bhejna agar error aaye.</p>
 
+    <!-- STATUS LOG -->
+    <div id="statusLog" class="box">
+        Waiting for user action...
+    </div>
+
+    <button onclick="startTest()">TEST CONNECTION NOW</button>
+
+    <!-- FIREBASE SDKs -->
     <script type="module">
-        import React, { useState, useEffect } from 'react';
-        import ReactDOM from 'react-dom/client';
-        import * as LucideIcons from 'lucide-react';
-        import { initializeApp } from 'firebase/app';
-        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // --- STEP 1: YAHAN APNI ASLI KEY DALO ---
+        // --- 1. CONFIGURATION (YAHAN APNI KEY DALO) ---
         const firebaseConfig = {
   apiKey: "AIzaSyBJWklGdsRM_XNo2_4AUceUZsiIyIjbUBA",
   authDomain: "mk-esports-60429.firebaseapp.com",
@@ -46,178 +40,60 @@
   measurementId: "G-QJHXYR70RG"
 };
 
-        // Initialize Firebase with Error Handling
-        let auth, db;
-        const isDemo = firebaseConfig.apiKey.includes("DUMMY");
+        // UI Helper
+        function log(msg, type = "normal") {
+            const el = document.getElementById("statusLog");
+            const color = type === "error" ? "red" : (type === "success" ? "lightgreen" : "white");
+            el.innerHTML += `<div style="color:${color}; margin-top:5px;">> ${msg}</div>`;
+        }
 
-        if (!isDemo) {
+        window.startTest = async function() {
+            document.getElementById("statusLog").innerHTML = "Starting tests...";
+            
             try {
+                // TEST 1: APP INIT
+                log("1. Initializing Firebase...");
                 const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-            } catch (e) {
-                console.error("Firebase Init Error:", e);
-                alert("Firebase Config Error: " + e.message);
-            }
-        }
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+                log("Firebase App Initialized! ✅", "success");
 
-        // --- CONSTANTS ---
-        const ADMIN_NUMBER = "0000"; 
-        const STAFF_NUMBER = "1111";
-        const DEFAULT_ADMIN_PASS = "admin123";
-        const DEFAULT_STAFF_PASS = "staff123";
-        const ADMIN_UPI_ID = '6394562344-@ybl';
-        const QR_PLACEHOLDER_URL = 'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg';
-        const MAX_PLAYERS_PER_ROOM = 48;
-        const PRESET_AMOUNTS = [50, 100, 200, 500, 1000, 2000];
+                // TEST 2: AUTHENTICATION
+                log("2. Testing Anonymous Login...");
+                const userCred = await signInAnonymously(auth);
+                log(`Login Success! User ID: ${userCred.user.uid} ✅`, "success");
 
-        const getFutureTime = (minutes) => Date.now() + minutes * 60 * 1000;
-        const Icon = ({ name, size = 24, className }) => {
-            const LucideIcon = LucideIcons[name];
-            if (!LucideIcon) return null;
-            return React.createElement(LucideIcon, { size, className });
-        };
-
-        // --- APP LOGIC ---
-        function App() {
-            const [user, setUser] = useState(null);
-            const [view, setView] = useState('login');
-            const [userProfile, setUserProfile] = useState(null);
-            const [mobileNumber, setMobileNumber] = useState('');
-            const [password, setPassword] = useState('');
-            const [loadingText, setLoadingText] = useState(''); // For Login Status
-
-            // --- AUTHENTICATION ---
-            useEffect(() => {
-                if(isDemo) return;
-                const unsub = onAuthStateChanged(auth, async (u) => {
-                    if(u) {
-                        setUser(u);
-                        setLoadingText("Loading Profile...");
-                        try {
-                            const ref = doc(db, 'artifacts', 'mk-esports-v1', 'users', u.uid, 'profile', 'main');
-                            onSnapshot(ref, (s) => {
-                                if(s.exists()) {
-                                    setUserProfile(s.data());
-                                    setView('home');
-                                    setLoadingText('');
-                                } else {
-                                    // Profile doesn't exist yet, create it
-                                    createProfile(u);
-                                }
-                            });
-                        } catch (e) {
-                            alert("Database Error: " + e.message);
-                            setLoadingText('');
-                        }
-                    }
-                });
-                return () => unsub();
-            }, []);
-
-            const createProfile = async (u) => {
-                const isOwner = mobileNumber === ADMIN_NUMBER;
-                const isStaff = mobileNumber === STAFF_NUMBER;
-                const role = isOwner ? 'OWNER' : (isStaff ? 'STAFF' : 'USER');
-                
+                // TEST 3: DATABASE READ
+                log("3. Testing Database Connection...");
                 try {
-                    await setDoc(doc(db, 'artifacts', 'mk-esports-v1', 'users', u.uid, 'profile', 'main'), {
-                        displayName: isOwner ? "OWNER" : `Player_${mobileNumber.slice(-4)}`,
-                        walletBalance: isOwner ? 999999 : 50,
-                        role: role,
-                        myMatches: [],
-                        createdAt: serverTimestamp()
-                    });
-                } catch (e) {
-                    alert("Profile Creation Failed: " + e.message);
-                }
-            };
-
-            const handleLogin = async () => {
-                if(!mobileNumber) return alert("Enter Mobile Number");
-                setLoadingText("Checking Credentials...");
-
-                // 1. Password Check (Local)
-                if (mobileNumber === ADMIN_NUMBER || mobileNumber === STAFF_NUMBER) {
-                    let requiredPass = mobileNumber === ADMIN_NUMBER ? DEFAULT_ADMIN_PASS : DEFAULT_STAFF_PASS;
-                    if (password !== requiredPass) {
-                        setLoadingText('');
-                        return alert("❌ Wrong Password!");
+                    const docRef = doc(db, "test_collection", "test_doc");
+                    await getDoc(docRef);
+                    log("Database Connected! (Read Success) ✅", "success");
+                    log("--------------------------------", "normal");
+                    log("SAB KUCH SAHI HAI! AB MAIN CODE CHALAO.", "success");
+                } catch (dbError) {
+                    log("Database Error: " + dbError.message, "error");
+                    if (dbError.message.includes("permission-denied")) {
+                        log("HINT: Firestore Rules mein 'allow read, write: if true;' set karo.", "error");
                     }
                 }
 
-                // 2. Firebase Login
-                if (isDemo) {
-                    // Demo Mode Logic
-                    const isOwner = mobileNumber === ADMIN_NUMBER;
-                    const isStaff = mobileNumber === STAFF_NUMBER;
-                    setUser({ uid: "demo" });
-                    setUserProfile({
-                        displayName: isOwner ? "OWNER" : "Player_Demo",
-                        walletBalance: isOwner ? 99999 : 50,
-                        role: isOwner ? 'OWNER' : (isStaff ? 'STAFF' : 'USER'),
-                        myMatches: []
-                    });
-                    setView('home');
-                    setLoadingText('');
+            } catch (error) {
+                log("CRITICAL ERROR: " + error.message, "error");
+                console.error(error);
+
+                // Common Fixes based on error code
+                if (error.code === "auth/api-key-not-valid") {
+                    log("FIX: Aapne API Key galat copy ki hai. Dobara copy karo.", "error");
+                } else if (error.code === "auth/operation-not-allowed") {
+                    log("FIX: Firebase Console mein 'Anonymous Auth' enable nahi hai.", "error");
+                } else if (error.code === "auth/network-request-failed") {
+                    log("FIX: Internet connection check karo.", "error");
                 } else {
-                    // Real Login
-                    setLoadingText("Connecting to Server...");
-                    try {
-                        await signInAnonymously(auth);
-                        // onAuthStateChanged will handle the rest
-                    } catch (error) {
-                        setLoadingText('');
-                        console.error(error);
-                        if (error.code === 'auth/operation-not-allowed') {
-                            alert("ERROR: Enable 'Anonymous' login in Firebase Console!");
-                        } else if (error.code === 'auth/api-key-not-valid') {
-                            alert("ERROR: Wrong API Key in code!");
-                        } else {
-                            alert("Login Failed: " + error.message);
-                        }
-                    }
+                    log("FIX: Error message padho aur Firebase settings check karo.", "error");
                 }
-            };
-
-            // --- RENDER LOGIN ---
-            if(view === 'login') {
-                return React.createElement('div', {className: "min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950"},
-                    isDemo && React.createElement('div', {className: "absolute top-4 bg-red-600 text-white px-4 py-2 rounded text-xs font-bold animate-pulse"}, "DEMO MODE (NO DB)"),
-                    React.createElement('div', {className: "w-24 h-24 bg-cyan-600 mb-6 flex items-center justify-center font-black text-4xl italic rounded-2xl shadow-[0_0_40px_rgba(6,182,212,0.5)]"}, "MK"),
-                    React.createElement('h1', {className: "text-3xl font-black text-white mb-8"}, "SECURE LOGIN"),
-                    
-                    React.createElement('input', {
-                        onChange: e=>setMobileNumber(e.target.value), 
-                        type: "number", 
-                        placeholder: "Mobile Number", 
-                        className: "w-full bg-black border border-slate-700 p-4 text-white font-mono rounded-lg mb-2 text-center text-xl outline-none focus:border-cyan-500"
-                    }),
-                    
-                    React.createElement('input', {
-                        onChange: e=>setPassword(e.target.value), 
-                        type: "password", 
-                        placeholder: "Password (Only for Admin/Staff)", 
-                        className: "w-full bg-black border border-slate-700 p-4 text-white font-mono rounded-lg mb-6 text-center text-xl outline-none focus:border-cyan-500"
-                    }),
-                    
-                    React.createElement('button', {
-                        onClick: handleLogin, 
-                        disabled: !!loadingText,
-                        className: `w-full py-4 text-lg font-bold uppercase tracking-wider transition-all clip-path-slant ${loadingText ? 'bg-slate-700 text-slate-400' : 'bg-cyan-600 text-black hover:bg-cyan-400'}`,
-                        style: { clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }
-                    }, loadingText || "AUTHENTICATE")
-                );
             }
-
-            // --- HOME VIEW (Simplified for checking login first) ---
-            return React.createElement('div', {className: "min-h-screen flex items-center justify-center bg-slate-900 text-white"},
-                React.createElement('h1', {className: "text-2xl"}, "Welcome! Login Successful.")
-            );
         }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(App));
     </script>
 </body>
 </html>
