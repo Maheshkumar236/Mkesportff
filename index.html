@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MK Esports - Ultimate Platform</title>
+    
+    <!-- 1. Design Engine (Tailwind) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. React & Firebase Modules -->
     <script type="importmap">
     {
         "imports": {
@@ -17,11 +21,15 @@
         }
     }
     </script>
+    
     <style>
+        /* Pro Gaming CSS */
         .clip-path-slant { clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { background-color: #020617; color: #cbd5e1; font-family: sans-serif; }
+        body { background-color: #020617; color: #cbd5e1; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .neon-text { text-shadow: 0 0 10px rgba(34, 211, 238, 0.5); }
     </style>
 </head>
 <body>
@@ -32,28 +40,30 @@
         import ReactDOM from 'react-dom/client';
         import * as LucideIcons from 'lucide-react';
         
+        // Icon Helper
         const Icon = ({ name, size = 24, className }) => {
             const LucideIcon = LucideIcons[name];
             if (!LucideIcon) return null;
             return React.createElement(LucideIcon, { size, className });
         };
 
-        // --- FIREBASE CONFIG (YAHAN APNI KEY DALNA) ---
-        // Agar key nahi hai to ye Demo Mode me chalega
+        // ---------------------------------------------------------
+        // [STEP 1] FIREBASE CONFIGURATION (YAHAN APNI KEY DALNA)
+        // ---------------------------------------------------------
         const firebaseConfig = {
-  apiKey: "AIzaSyAUhjITeMcVcEbgvvgbZ-VYgDC0q948kJY",
-  authDomain: "mk-esports-69e15.firebaseapp.com",
-  projectId: "mk-esports-69e15",
-  storageBucket: "mk-esports-69e15.firebasestorage.app",
-  messagingSenderId: "87847566694",
-  appId: "1:87847566694:web:a32a596c8991d42a6b1ca7",
-  measurementId: "G-1E9EDPXNC2"
+  apiKey: "AIzaSyAXU-hZxTEL0_M8ObB-IQTBCADKRWzhK-U",
+  authDomain: "mkesportff-7f8b1.firebaseapp.com",
+  projectId: "mkesportff-7f8b1",
+  storageBucket: "mkesportff-7f8b1.firebasestorage.app",
+  messagingSenderId: "402013938752",
+  appId: "1:402013938752:web:b89744203c096d22482ba5"
 };
 
         import { initializeApp } from 'firebase/app';
         import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
 
+        // Check if config is real or dummy
         const isDemo = firebaseConfig.apiKey.includes("DUMMY");
         let auth, db;
         if (!isDemo) {
@@ -61,18 +71,27 @@
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
-            } catch (e) {}
+            } catch (e) { console.error("Firebase Error", e); }
         }
 
-        // --- CONFIG ---
-        const ADMIN_NUMBER = "0000"; 
-        const STAFF_NUMBER = "1111";
-        const ADMIN_UPI_ID = '6394562344-@ybl';
-        const QR_PLACEHOLDER_URL = 'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg';
-        const MAX_PLAYERS_PER_ROOM = 48;
+        // ---------------------------------------------------------
+        // [STEP 2] SYSTEM CONFIGURATION (OWNER SETTINGS)
+        // ---------------------------------------------------------
+        const ADMIN_NUMBER = "0000"; // Owner Login
+        const STAFF_NUMBER = "1111"; // Staff Login
+        const DEFAULT_ADMIN_PASS = "admin123"; // Owner Password
+        const DEFAULT_STAFF_PASS = "staff123"; // Staff Password
+        
+        const ADMIN_UPI_ID = '6394562344-@ybl'; // Payment ID
+        const QR_PLACEHOLDER_URL = 'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg'; // Apna QR Link yahan lagayein
+        
+        const MAX_PLAYERS_PER_ROOM = 48; // Room Limit
+        const PRESET_AMOUNTS = [50, 100, 200, 500, 1000, 2000];
 
+        // Helper: Get Future Time
         const getFutureTime = (minutes) => Date.now() + minutes * 60 * 1000;
         
+        // Game Images
         const IMAGES = {
             SOLO: "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=1974&auto=format&fit=crop", 
             DUO: "https://images.unsplash.com/photo-1642387994262-ba9223e7161b?q=80&w=2070&auto=format&fit=crop", 
@@ -80,16 +99,21 @@
             LAN: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop"
         };
 
+        // Room Logic: 49th player goes to Room 2
         const getRoomStatus = (totalJoined) => {
             const currentRoom = Math.floor(totalJoined / MAX_PLAYERS_PER_ROOM) + 1;
             const inCurrentRoom = totalJoined % MAX_PLAYERS_PER_ROOM;
             return { currentRoom, inCurrentRoom };
         };
 
+        // Initial Schedule
         const INITIAL_MATCHES = [
             { id: 'sq_10am', title: 'Morning Squad Rush', mode: 'SQUAD', entryFee: 150, prizePool: '₹1,500', map: 'Bermuda', time: '10:40 AM', startTimeMs: getFutureTime(30), joined: 52, totalSlots: 480, image: IMAGES.SQUAD, roomId: {}, roomPass: {} },
             { id: 'sl_11am', title: 'Solo Sniper Only', mode: 'SOLO', entryFee: 50, prizePool: '₹2,000', map: 'Bermuda', time: '11:00 AM', startTimeMs: getFutureTime(60), joined: 12, totalSlots: 480, image: IMAGES.SOLO, roomId: {}, roomPass: {} },
-            { id: 'du_4pm', title: 'Duo Deathmatch', mode: 'DUO', entryFee: 150, prizePool: '₹2,000', map: 'Purgatory', time: '04:00 PM', startTimeMs: getFutureTime(360), joined: 98, totalSlots: 480, image: IMAGES.DUO, roomId: {}, roomPass: {} }
+            { id: 'sq_2pm', title: 'Afternoon Warfare', mode: 'SQUAD', entryFee: 150, prizePool: '₹1,500', map: 'Purgatory', time: '02:00 PM', startTimeMs: getFutureTime(240), joined: 8, totalSlots: 480, image: IMAGES.SQUAD, roomId: {}, roomPass: {} },
+            { id: 'du_4pm', title: 'Duo Deathmatch', mode: 'DUO', entryFee: 150, prizePool: '₹2,000', map: 'Purgatory', time: '04:00 PM', startTimeMs: getFutureTime(360), joined: 98, totalSlots: 480, image: IMAGES.DUO, roomId: {}, roomPass: {} },
+            { id: 'sq_6pm', title: 'Evening Elite Cup', mode: 'SQUAD', entryFee: 150, prizePool: '₹1,500', map: 'Kalahari', time: '06:00 PM', startTimeMs: getFutureTime(480), joined: 0, totalSlots: 480, image: IMAGES.SQUAD, roomId: {}, roomPass: {} },
+            { id: 'lan1', title: 'MK LAN MEGA EVENT', mode: 'LAN', entryFee: 500, prizePool: '₹1,00,000', map: 'Delhi Arena', time: 'Dec 25th', startTimeMs: getFutureTime(100000), joined: 184, totalSlots: 1000, type: 'lan', image: IMAGES.LAN, roomId: {}, roomPass: {} }
         ];
 
         // --- COMPONENTS ---
@@ -112,7 +136,7 @@
         const Button = ({ children, onClick, variant = 'primary', className = '', disabled = false }) => {
             const baseStyle = "relative font-black uppercase tracking-wider transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 overflow-hidden clip-path-slant";
             const variants = {
-                primary: "bg-cyan-600 text-black hover:bg-cyan-400 py-3 px-4 text-sm",
+                primary: "bg-cyan-600 text-black hover:bg-cyan-400 py-3 px-4 text-sm shadow-[0_0_15px_rgba(6,182,212,0.4)]",
                 secondary: "bg-slate-800 text-cyan-400 border border-cyan-500/50 py-2 px-3 text-xs",
                 staff: "bg-yellow-500 text-black border border-yellow-400 py-2 px-3 text-xs font-mono",
                 danger: "bg-red-600 text-white border border-red-500 py-3 px-4 text-sm",
@@ -140,27 +164,41 @@
             );
         };
 
-        // --- MAIN APP ---
+        // --- MAIN APP LOGIC ---
         function App() {
             const [user, setUser] = useState(null);
             const [view, setView] = useState('login');
             const [matches, setMatches] = useState(INITIAL_MATCHES);
             const [userProfile, setUserProfile] = useState(null);
+            
+            // Login Fields
             const [mobileNumber, setMobileNumber] = useState('');
+            const [password, setPassword] = useState('');
             const [activeTab, setActiveTab] = useState('ALL');
             
+            // UI Modals
             const [showJoinModal, setShowJoinModal] = useState(false);
+            const [showTermsModal, setShowTermsModal] = useState(false);
             const [joiningMatch, setJoiningMatch] = useState(null);
             const [playerDetails, setPlayerDetails] = useState([]);
 
+            // Staff/Admin UI
             const [showStaffPanel, setShowStaffPanel] = useState(false);
             const [staffSelectedMatch, setStaffSelectedMatch] = useState(null);
             const [staffRoomId, setStaffRoomId] = useState('');
             const [staffRoomPass, setStaffRoomPass] = useState('');
             const [staffSelectedRoomNum, setStaffSelectedRoomNum] = useState(1);
 
+            // Wallet UI
+            const [depositAmount, setDepositAmount] = useState('');
+            const [utrNumber, setUtrNumber] = useState('');
+            const [proofImage, setProofImage] = useState(null);
+            const [pendingDeposits, setPendingDeposits] = useState([]);
+
+            // Mock Data
             const [mockParticipants, setMockParticipants] = useState([]);
 
+            // --- AUTH ---
             useEffect(() => {
                 if(isDemo) return;
                 const unsub = onAuthStateChanged(auth, async (u) => {
@@ -179,7 +217,15 @@
             }, []);
 
             const handleLogin = async () => {
-                if(!mobileNumber) return alert("Enter Number");
+                if(!mobileNumber) return alert("Enter Mobile Number");
+                
+                // --- SECURITY CHECK ---
+                if (mobileNumber === ADMIN_NUMBER || mobileNumber === STAFF_NUMBER) {
+                    if (!password) return alert("Password Required for System Access");
+                    let storedPass = mobileNumber === ADMIN_NUMBER ? DEFAULT_ADMIN_PASS : DEFAULT_STAFF_PASS;
+                    if (password !== storedPass) return alert("❌ Access Denied: Wrong Password");
+                }
+
                 if (isDemo) {
                     const isOwner = mobileNumber === ADMIN_NUMBER;
                     const isStaff = mobileNumber === STAFF_NUMBER;
@@ -195,36 +241,69 @@
                     setView('home');
                     return;
                 }
-                // Real auth...
+                // Real Auth would go here...
             };
 
-            const handleJoin = (match) => {
+            // --- JOIN & TERMS ---
+            const initJoin = (match) => {
                 if(userProfile.role === 'STAFF') return;
-                const alreadyJoined = userProfile.myMatches.some(m => m.matchId === match.id);
-                if(alreadyJoined) { alert("Already Joined this Time Slot!"); return; }
-                if(userProfile.walletBalance < match.entryFee) { alert("Low Balance"); return; }
+                if(userProfile.myMatches.some(m => m.matchId === match.id)) { alert("Already Joined!"); return; }
+                if(userProfile.walletBalance < match.entryFee) { alert("Low Balance! Recharge Wallet."); setView('wallet'); return; }
+                
                 setJoiningMatch(match);
-                const count = match.mode === 'SQUAD' ? 4 : (match.mode === 'DUO' ? 2 : 1);
+                // Open Terms First
+                setShowTermsModal(true);
+            };
+
+            const acceptTermsAndOpenForm = () => {
+                setShowTermsModal(false);
+                const count = joiningMatch.mode === 'SQUAD' ? 4 : (joiningMatch.mode === 'DUO' ? 2 : 1);
                 setPlayerDetails(Array(count).fill().map((_, i) => ({ name: i===0 ? userProfile.displayName : '', uid: '' })));
                 setShowJoinModal(true);
             };
 
             const confirmJoin = () => {
+                if(playerDetails.some(p => !p.name || !p.uid)) return alert("Fill all details!");
+                
                 const { currentRoom } = getRoomStatus(joiningMatch.joined);
                 const newPlayers = playerDetails.map(p => ({ ...p, matchId: joiningMatch.id, roomNum: currentRoom, paid: true }));
                 setMockParticipants([...mockParticipants, ...newPlayers]);
                 setMatches(matches.map(m => m.id === joiningMatch.id ? {...m, joined: m.joined + 1} : m));
+                
                 const newMatchEntry = { matchId: joiningMatch.id, roomNum: currentRoom };
                 const updatedMyMatches = [...userProfile.myMatches, newMatchEntry];
+                
                 setUserProfile({
                     ...userProfile, 
                     walletBalance: userProfile.walletBalance - joiningMatch.entryFee,
                     myMatches: updatedMyMatches
                 });
-                alert(`Success! You have been assigned to ROOM ${currentRoom}`);
+                alert(`Success! You are in ROOM ${currentRoom}. Fee Deducted.`);
                 setShowJoinModal(false);
             };
 
+            // --- WALLET ---
+            const handleDepositSubmit = () => {
+                if(!depositAmount) return alert("Select Amount");
+                if(!utrNumber || utrNumber.length !== 12) return alert("UTR must be 12 digits");
+                if(!proofImage) return alert("Upload Screenshot");
+                
+                const newD = { amount: depositAmount, utr: utrNumber, user: userProfile.displayName, id: Date.now() };
+                setPendingDeposits([...pendingDeposits, newD]);
+                alert("Deposit Request Sent!");
+                setDepositAmount(''); setUtrNumber(''); setProofImage(null);
+            };
+
+            const handleProofUpload = (e) => {
+                if(e.target.files && e.target.files[0]) setProofImage(URL.createObjectURL(e.target.files[0]));
+            };
+
+            const approveDeposit = (deposit) => {
+                setPendingDeposits(pendingDeposits.filter(d => d.id !== deposit.id));
+                alert("Approved!");
+            };
+
+            // --- STAFF ROOM MANAGER ---
             const openStaffPanel = (match) => {
                 setStaffSelectedMatch(match);
                 setStaffSelectedRoomNum(1);
@@ -249,20 +328,22 @@
                 setStaffRoomPass(staffSelectedMatch.roomPass[roomNum] || '');
             };
 
+            // --- RENDER ---
             if(view === 'login') {
                 return React.createElement('div', {className: "min-h-screen flex flex-col items-center justify-center p-6 bg-slate-950"},
                     isDemo && React.createElement('div', {className: "absolute top-4 bg-red-600 text-white px-4 py-2 rounded text-xs font-bold animate-pulse"}, "DEMO MODE"),
-                    React.createElement('div', {className: "w-24 h-24 bg-cyan-600 mb-6 flex items-center justify-center font-black text-4xl italic rounded-2xl"}, "MK"),
-                    React.createElement('h1', {className: "text-3xl font-black text-white mb-2"}, "LOGIN"),
-                    React.createElement('p', {className: "text-slate-500 text-xs mb-8"}, "0000=Owner | 1111=Staff | Any=User"),
-                    React.createElement('input', {onChange: e=>setMobileNumber(e.target.value), type: "number", placeholder: "Mobile Number", className: "w-full bg-black border border-slate-700 p-4 text-white font-mono rounded-lg mb-4 text-center text-xl outline-none"}),
-                    React.createElement(Button, {onClick: handleLogin, className: "w-full py-4 text-lg"}, "START")
+                    React.createElement('div', {className: "w-24 h-24 bg-cyan-600 mb-6 flex items-center justify-center font-black text-4xl italic rounded-2xl shadow-[0_0_40px_rgba(6,182,212,0.5)]"}, "MK"),
+                    React.createElement('h1', {className: "text-3xl font-black text-white mb-8"}, "SECURE LOGIN"),
+                    React.createElement('input', {onChange: e=>setMobileNumber(e.target.value), type: "number", placeholder: "Mobile Number", className: "w-full bg-black border border-slate-700 p-4 text-white font-mono rounded-lg mb-2 text-center text-xl outline-none focus:border-cyan-500"}),
+                    React.createElement('input', {onChange: e=>setPassword(e.target.value), type: "password", placeholder: "Password (Optional for User)", className: "w-full bg-black border border-slate-700 p-4 text-white font-mono rounded-lg mb-6 text-center text-xl outline-none focus:border-cyan-500"}),
+                    React.createElement(Button, {onClick: handleLogin, className: "w-full py-4 text-lg"}, "AUTHENTICATE")
                 );
             }
 
             const isStaffOrOwner = userProfile?.role === 'OWNER' || userProfile?.role === 'STAFF';
 
             return React.createElement('div', {className: "min-h-screen pb-24 relative"},
+                // Header
                 React.createElement('div', {className: "sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-white/10 px-4 py-3 flex justify-between items-center"},
                     React.createElement('div', {className: "flex items-center gap-2"}, 
                         React.createElement('div', {className: "w-8 h-8 bg-cyan-600 flex items-center justify-center font-black text-white italic rounded"}, "MK"),
@@ -273,7 +354,9 @@
                         React.createElement('span', {className: "text-sm font-bold text-white"}, `₹${userProfile?.walletBalance}`)
                     )
                 ),
+                
                 React.createElement('div', {className: "p-2"},
+                    // HOME VIEW
                     view === 'home' && React.createElement('div', {className: "space-y-4 pt-2"},
                         matches.map(match => {
                             const { currentRoom, inCurrentRoom } = getRoomStatus(match.joined);
@@ -291,11 +374,13 @@
                                 React.createElement('div', {className: "mt-4 relative z-10"},
                                     isStaffOrOwner ? 
                                     React.createElement(Button, {onClick: ()=>openStaffPanel(match), variant: "staff", className: "w-full"}, "MANAGE ROOMS") :
-                                    React.createElement(Button, {onClick: ()=>handleJoin(match), variant: isJoined ? 'secondary' : 'primary', className: "w-full"}, isJoined ? "ALREADY JOINED (Check Lobby)" : `JOIN ₹${match.entryFee}`)
+                                    React.createElement(Button, {onClick: ()=>initJoin(match), variant: isJoined ? 'secondary' : 'primary', className: "w-full"}, isJoined ? "ALREADY JOINED" : `JOIN ₹${match.entryFee}`)
                                 )
                             );
                         })
                     ),
+
+                    // MY MATCHES VIEW
                     view === 'matches' && React.createElement('div', {className: "space-y-4 pt-2"},
                         userProfile.myMatches.length === 0 ? React.createElement('p', {className: "text-center text-slate-500 mt-10"}, "No matches joined.") :
                         userProfile.myMatches.map((myMatch, idx) => {
@@ -321,8 +406,74 @@
                                 )
                             );
                         })
+                    ),
+
+                    // WALLET VIEW
+                    view === 'wallet' && React.createElement('div', {className: "space-y-6 pt-4"},
+                        userProfile.role === 'OWNER' ? (
+                            React.createElement('div', {className: "bg-red-950/30 border border-red-500/50 p-4 rounded-xl"},
+                                React.createElement('h3', {className: "text-red-400 font-bold mb-4 flex items-center gap-2"}, React.createElement(Icon, {name: "Shield", size: 16}), "ADMIN: VERIFY DEPOSITS"),
+                                pendingDeposits.length > 0 ? pendingDeposits.map((d, i) => 
+                                    React.createElement('div', {key: i, className: "bg-black/50 p-3 rounded-lg mb-2 border border-slate-700"},
+                                        React.createElement('div', {className: "flex justify-between mb-2"},
+                                            React.createElement('span', {className: "text-xs text-white font-bold"}, d.user),
+                                            React.createElement('span', {className: "text-emerald-400 font-bold"}, `+₹${d.amount}`)
+                                        ),
+                                        React.createElement('div', {className: "text-[10px] text-slate-400 font-mono mb-2"}, `UTR: ${d.utr}`),
+                                        d.proof && React.createElement('img', {src: d.proof, className: "w-full h-32 object-contain bg-black border border-slate-800 mb-2 rounded"}),
+                                        React.createElement(Button, {onClick: ()=>approveDeposit(d), variant: "success", className: "w-full py-1"}, "APPROVE")
+                                    )
+                                ) : React.createElement('div', {className: "text-xs text-slate-500"}, "No Pending Requests")
+                            )
+                        ) : (
+                            React.createElement(Card3D, {glow: "cyan"},
+                                React.createElement('h3', {className: "font-bold text-white mb-4 flex items-center gap-2"}, React.createElement(Icon, {name: "TrendingUp", size: 18}), "DEPOSIT MONEY"),
+                                React.createElement('div', {className: "bg-white p-2 w-32 h-32 mx-auto mb-4 rounded"}, React.createElement('img', {src: QR_PLACEHOLDER_URL, className: "w-full h-full"})),
+                                React.createElement('p', {className: "text-center text-cyan-400 font-mono text-sm mb-4 select-all"}, ADMIN_UPI_ID),
+                                React.createElement('div', {className: "grid grid-cols-3 gap-2 mb-4"},
+                                    PRESET_AMOUNTS.map(amt => React.createElement('button', {key: amt, onClick: ()=>setDepositAmount(amt), className: "bg-slate-800 text-white py-2 rounded text-xs font-bold hover:bg-cyan-600 hover:text-black"}, `₹${amt}`))
+                                ),
+                                React.createElement('input', {type: "number", value: depositAmount, onChange: e=>setDepositAmount(e.target.value), placeholder: "Amount", className: "w-full bg-black border border-slate-700 p-3 rounded mb-2 text-white"}),
+                                React.createElement('input', {type: "number", value: utrNumber, onChange: e=>setUtrNumber(e.target.value), placeholder: "12-Digit UTR", className: "w-full bg-black border border-slate-700 p-3 rounded mb-4 text-white"}),
+                                React.createElement('div', {className: "border border-dashed border-slate-700 rounded-lg p-4 text-center mb-4 relative"},
+                                    React.createElement('input', {type: "file", accept: "image/*", onChange: handleProofUpload, className: "absolute inset-0 opacity-0"}),
+                                    proofImage ? React.createElement('span', {className: "text-emerald-400 text-xs font-bold"}, "Screenshot Added") : React.createElement('span', {className: "text-slate-500 text-[10px] uppercase"}, "Upload Screenshot")
+                                ),
+                                React.createElement(Button, {onClick: handleDepositSubmit, variant: "success", className: "w-full"}, "VERIFY DEPOSIT")
+                            )
+                        )
+                    ),
+
+                    // PROFILE VIEW
+                    view === 'profile' && React.createElement('div', {className: "pt-10 px-4 text-center"},
+                        React.createElement('div', {className: "w-24 h-24 bg-violet-600 rounded-full mx-auto mb-4 flex items-center justify-center"}, React.createElement(Icon, {name: "User", size: 40, className: "text-white"})),
+                        React.createElement('h2', {className: "text-2xl font-bold text-white"}, userProfile?.displayName),
+                        React.createElement('p', {className: "text-slate-500 mb-8"}, `UID: ${user?.uid?.slice(0,6)}`),
+                        React.createElement('div', {className: "bg-slate-900 p-4 rounded mb-4 text-left border border-slate-800"},
+                            React.createElement('h3', {className: "text-white font-bold mb-2"}, "Support"),
+                            React.createElement('p', {className: "text-xs text-slate-400"}, "For help, contact Admin via WhatsApp or Discord.")
+                        ),
+                        React.createElement(Button, {onClick: ()=>{ if(!isDemo) signOut(auth); setView('login'); }, className: "w-full", variant: "danger"}, "LOGOUT")
                     )
                 ),
+
+                // TERMS MODAL (First step of joining)
+                showTermsModal && React.createElement('div', {className: "fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"},
+                    React.createElement('div', {className: "bg-slate-900 w-full max-w-sm rounded-xl border border-red-500 p-6"},
+                        React.createElement('h3', {className: "text-red-500 font-bold text-lg mb-4 flex items-center gap-2"}, React.createElement(Icon, {name: "AlertTriangle"}), "RULES & TERMS"),
+                        React.createElement('ul', {className: "text-slate-300 text-xs space-y-2 mb-6 list-disc pl-4"},
+                            React.createElement('li', {}, "Teaming with opponents = Permanent BAN."),
+                            React.createElement('li', {}, "Hacks/Scripts/Config = BAN + No Refund."),
+                            React.createElement('li', {}, "Room ID/Pass will be given 15 mins before match."),
+                            React.createElement('li', {}, "If you miss the room, no refund."),
+                            React.createElement('li', {}, "Admin decision is final.")
+                        ),
+                        React.createElement(Button, {onClick: acceptTermsAndOpenForm, variant: "success", className: "w-full"}, "I ACCEPT & CONTINUE"),
+                        React.createElement('button', {onClick: ()=>setShowTermsModal(false), className: "w-full text-center text-slate-500 text-xs mt-3"}, "CANCEL")
+                    )
+                ),
+
+                // STAFF DASHBOARD
                 showStaffPanel && React.createElement('div', {className: "fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"},
                     React.createElement('div', {className: "bg-slate-900 w-full max-w-sm rounded-xl border border-yellow-500 overflow-hidden flex flex-col max-h-[90vh]"},
                         React.createElement('div', {className: "bg-yellow-900/20 p-4 border-b border-yellow-500/30 flex justify-between items-center"},
@@ -346,27 +497,16 @@
                                     React.createElement('input', {value: staffRoomPass, onChange: e=>setStaffRoomPass(e.target.value), placeholder: "Enter Password", className: "w-full bg-black border border-slate-700 p-2 text-white text-xs rounded"}),
                                     React.createElement(Button, {onClick: saveRoomDetails, variant: "success", className: "w-full py-2 text-xs"}, `PUBLISH TO ROOM ${staffSelectedRoomNum}`)
                                 )
-                            ),
-                            React.createElement('div', {},
-                                React.createElement('h4', {className: "text-xs font-bold text-white mb-2 uppercase"}, "Room Capacity Status"),
-                                React.createElement('div', {className: "space-y-1"},
-                                    [1, 2, 3].map(n => {
-                                        const total = staffSelectedMatch.joined;
-                                        const filled = Math.min(MAX_PLAYERS_PER_ROOM, Math.max(0, total - ((n-1)*MAX_PLAYERS_PER_ROOM)));
-                                        return React.createElement('div', {key: n, className: "flex justify-between text-[10px] text-slate-400"},
-                                            React.createElement('span', {}, `Room ${n}`),
-                                            React.createElement('span', {className: filled===MAX_PLAYERS_PER_ROOM ? "text-red-400" : "text-green-400"}, `${filled}/48`)
-                                        );
-                                    })
-                                )
                             )
                         )
                     )
                 ),
+
+                // JOIN MODAL
                 showJoinModal && React.createElement('div', {className: "fixed inset-0 z-50 bg-black/90 flex items-end justify-center sm:items-center"},
                     React.createElement('div', {className: "bg-slate-900 w-full max-w-sm p-6 rounded-t-3xl border-t border-cyan-500"},
                         React.createElement('div', {className: "flex justify-between items-center mb-4"},
-                            React.createElement('h3', {className: "text-white font-bold"}, "ENTRY"),
+                            React.createElement('h3', {className: "text-white font-bold"}, "ENTRY DETAILS"),
                             React.createElement('button', {onClick: ()=>setShowJoinModal(false)}, React.createElement(Icon, {name: "X", className: "text-slate-500"}))
                         ),
                         React.createElement('div', {className: "space-y-3 mb-4 max-h-[60vh] overflow-auto"},
@@ -387,6 +527,8 @@
                         React.createElement(Button, {onClick: confirmJoin, className: "w-full"}, "PAY & JOIN")
                     )
                 ),
+
+                // NAVIGATION
                 React.createElement('div', {className: "fixed bottom-0 w-full bg-slate-950 border-t border-slate-800 p-2 flex justify-around z-50"},
                     React.createElement('button', {onClick: ()=>setView('home'), className: `flex flex-col items-center ${view==='home'?'text-cyan-400':'text-slate-600'}`}, React.createElement(Icon, {name: "Gamepad2", size: 20}), React.createElement('span', {className: "text-[10px] font-bold"}, "ARENA")),
                     React.createElement('button', {onClick: ()=>setView('matches'), className: `flex flex-col items-center ${view==='matches'?'text-cyan-400':'text-slate-600'}`}, React.createElement(Icon, {name: "Crosshair", size: 20}), React.createElement('span', {className: "text-[10px] font-bold"}, "MY MATCHES")),
