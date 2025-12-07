@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MK SPORT - LIVE</title>
+    
+    <!-- Core Libraries Only -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;900&display=swap');
+        
+        body { background-color: #000000; color: white; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Glass & Neon Effects */
+        .glass {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(5, 5, 5, 0.98));
+            border: 1px solid rgba(255, 165, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .neon-orange { text-shadow: 0 0 10px rgba(249, 115, 22, 0.8); }
+        
+        /* Custom Loader */
+        .loader { width: 30px; height: 30px; border: 4px solid #333; border-top: 4px solid #f97316; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Inputs */
+        .field { background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 10px; width: 100%; outline: none; transition: 0.3s; }
+        .field:focus { border-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.2); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // ⚠️ PASTE ASLI CONFIG HERE ⚠️
+        const firebaseConfig = {
+  apiKey: "AIzaSyBJWklGdsRM_XNo2_4AUceUZsiIyIjbUBA",
+  authDomain: "mk-esports-60429.firebaseapp.com",
+  projectId: "mk-esports-60429",
+  storageBucket: "mk-esports-60429.firebasestorage.app",
+  messagingSenderId: "663019221754",
+  appId: "1:663019221754:web:d75e59277feb0ac12a8f43",
+  measurementId: "G-QJHXYR70RG"
+};
+
+        // --- ASSETS (NO EXTERNAL LINKS) ---
+        const ASSETS = {
+            logo: "https://cdn-icons-png.flaticon.com/512/1604/1604335.png",
+            bg: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2670&auto=format&fit=crop",
+            coin: "https://cdn-icons-png.flaticon.com/512/1206/1206336.png",
+            qr: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=mksport@upi&pn=MKSport"
+        };
+
+        // --- INTERNAL ICONS (CRASH PROOF) ---
+        const Icon = ({ p }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {p}
+            </svg>
+        );
+        
+        const ICONS = {
+            Home: <Icon p={<><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>} />,
+            Wallet: <Icon p={<><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></>} />,
+            Chat: <Icon p={<><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></>} />,
+            User: <Icon p={<><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>} />,
+            Trophy: <Icon p={<><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></>} />,
+            Shield: <Icon p={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>} />,
+            Lock: <Icon p={<><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>} />,
+            LogOut: <Icon p={<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></>} />
+        };
+
+        const { useState, useEffect } = React;
+
+        // Init Firebase Safely
+        let app, auth, db;
+        try {
+            if (!firebase.apps.length) app = firebase.initializeApp(firebaseConfig);
+            else app = firebase.app();
+            auth = firebase.auth();
+            db = firebase.firestore();
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        } catch (e) { document.body.innerHTML = `<h1 style="color:red;padding:20px">Config Error: ${e.message}</h1>`; }
+
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [userData, setUserData] = useState(null);
+            const [view, setView] = useState('splash');
+            const [matches, setMatches] = useState([]);
+            const [mobile, setMobile] = useState('');
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [isRegister, setIsRegister] = useState(false);
+            const [tapCount, setTapCount] = useState(0);
+            const [loading, setLoading] = useState(false);
+
+            // Auth Listener
+            useEffect(() => {
+                if(!auth) return;
+                const unsub = auth.onAuthStateChanged(async (u) => {
+                    if (u) {
+                        setUser(u);
+                        // Safe Data Fetch
+                        try {
+                            const docRef = db.collection('artifacts').doc('mksport').collection('users').doc(u.uid);
+                            const snap = await docRef.get();
+                            if(snap.exists) {
+                                setUserData(snap.data());
+                            } else {
+                                // Create default if missing
+                                const def = { uid: u.uid, balance: 0, role: 'user', phone: mobile || 'User' };
+                                await docRef.set(def);
+                                setUserData(def);
+                            }
+                            setView('home');
+                        } catch(e) {
+                            console.error(e);
+                            setUserData({ uid: u.uid, balance: 0, role: 'user', phone: 'Error' });
+                            setView('home');
+                        }
+                    } else {
+                        setUser(null);
+                        setView('auth');
+                    }
+                });
+
+                if(db) {
+                    db.collection('artifacts').doc('mksport').collection('matches').orderBy('createdAt', 'desc').onSnapshot(s => setMatches(s.docs.map(d => ({id: d.id, ...d.data()}))));
+                }
+                return () => unsub();
+            }, []);
+
+            // Handlers
+            const handleAuth = async () => {
+                if(mobile.length !== 10) return alert("10 Digit Mobile Required");
+                if(password.length < 6) return alert("Password min 6 chars");
+                setLoading(true);
+                
+                const proxyEmail = `${mobile}@mksport.com`;
+                try {
+                    if(isRegister) {
+                        const r = await auth.createUserWithEmailAndPassword(proxyEmail, password);
+                        await db.collection('artifacts').doc('mksport').collection('users').doc(r.user.uid).set({
+                            uid: r.user.uid, phone: mobile, email: email, balance: 0, role: 'user', createdAt: new Date().toISOString()
+                        });
+                        alert("Account Created!");
+                    } else {
+                        await auth.signInWithEmailAndPassword(proxyEmail, password);
+                    }
+                } catch(e) { alert(e.message); setLoading(false); }
+            };
+
+            const joinMatch = async (m) => {
+                if((userData?.balance || 0) < m.entry) return alert("Low Balance");
+                try {
+                    await db.runTransaction(async (t) => {
+                        const uRef = db.collection('artifacts').doc('mksport').collection('users').doc(user.uid);
+                        const mRef = db.collection('artifacts').doc('mksport').collection('matches').doc(m.id);
+                        const uDoc = await t.get(uRef);
+                        const mDoc = await t.get(mRef);
+                        
+                        if(uDoc.data().balance < m.entry) throw "No Money";
+                        const p = mDoc.data().participants || [];
+                        if(p.find(x => x.uid === user.uid)) throw "Joined";
+                        
+                        p.push({uid: user.uid, phone: userData.phone});
+                        t.update(uRef, {balance: uDoc.data().balance - m.entry});
+                        t.update(mRef, {participants: p, current: (mDoc.data().current || 0) + 1});
+                    });
+                    alert("Joined!");
+                } catch(e) { alert(e); }
+            };
+
+            const unlockAdmin = () => {
+                const c = tapCount + 1;
+                setTapCount(c);
+                if(c === 5) {
+                    const p = prompt("Admin Code:");
+                    if(p === "admin123") {
+                        db.collection('artifacts').doc('mksport').collection('users').doc(user.uid).update({role: 'admin'});
+                        alert("Admin Unlocked!"); window.location.reload();
+                    }
+                    setTapCount(0);
+                }
+            };
+
+            // --- VIEWS ---
+            if(view === 'splash') return <div className="h-screen bg-black flex items-center justify-center flex-col"><div className="loader"></div><h2 className="text-orange-500 mt-4 font-bold tracking-widest">LOADING...</h2></div>;
+
+            if(view === 'auth') return (
+                <div className="h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
+                    <img src={ASSETS.bg} className="absolute inset-0 w-full h-full object-cover opacity-30"/>
+                    <div className="glass w-full max-w-sm p-8 rounded-2xl relative z-10 text-center">
+                        <img src={ASSETS.logo} className="w-20 h-20 mx-auto rounded-full border-2 border-orange-500 mb-4"/>
+                        <h1 className="text-3xl font-black italic mb-6">MK SPORT</h1>
+                        
+                        <div className="flex bg-gray-900 p-1 rounded-lg mb-4">
+                            <button onClick={()=>setIsRegister(false)} className={`flex-1 py-2 rounded font-bold ${!isRegister ? 'bg-orange-600' : 'text-gray-500'}`}>LOGIN</button>
+                            <button onClick={()=>setIsRegister(true)} className={`flex-1 py-2 rounded font-bold ${isRegister ? 'bg-orange-600' : 'text-gray-500'}`}>SIGN UP</button>
+                        </div>
+
+                        <div className="space-y-3">
+                            <input type="number" placeholder="Mobile Number" className="field" value={mobile} onChange={e=>setMobile(e.target.value)}/>
+                            {isRegister && <input type="email" placeholder="Email (Optional)" className="field" value={email} onChange={e=>setEmail(e.target.value)}/>}
+                            <input type="password" placeholder="Password" className="field" value={password} onChange={e=>setPassword(e.target.value)}/>
+                            <button onClick={handleAuth} className="w-full bg-orange-600 py-3 rounded-lg font-bold mt-2">
+                                {loading ? 'WAIT...' : (isRegister ? 'CREATE ACCOUNT' : 'LOGIN')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen pb-24 bg-black">
+                    {/* Header */}
+                    <div className="sticky top-0 bg-black/90 p-4 flex justify-between items-center border-b border-white/10 z-20 backdrop-blur-md">
+                        <div className="flex items-center gap-3">
+                            <img src={ASSETS.logo} className="w-8 h-8 rounded-full border border-orange-500"/>
+                            <div><h1 className="font-black italic">MK SPORT</h1><span className="text-[10px] text-orange-500 font-bold px-1 bg-orange-500/10 rounded">{userData?.role.toUpperCase()}</span></div>
+                        </div>
+                        <div className="bg-gray-900 px-3 py-1 rounded-full border border-orange-500/30 flex items-center gap-2">
+                            <img src={ASSETS.coin} className="w-4 h-4"/>
+                            <span className="font-bold">₹{userData?.balance || 0}</span>
+                        </div>
+                    </div>
+
+                    <div className="p-4 max-w-md mx-auto space-y-6">
+                        {view === 'home' && (
+                            <>
+                                <div className="h-40 rounded-2xl relative overflow-hidden glass group">
+                                    <img src={ASSETS.bg} className="absolute inset-0 w-full h-full object-cover opacity-50"/>
+                                    <div className="absolute bottom-4 left-4">
+                                        <span className="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded">LIVE</span>
+                                        <h2 className="text-2xl font-black italic mt-1">ELITE SCRIMS</h2>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    {matches.map(m => (
+                                        <div key={m.id} className="glass rounded-xl overflow-hidden">
+                                            <div className="p-3 bg-white/5 border-b border-white/5 flex justify-between">
+                                                <div><h3 className="font-bold">{m.title}</h3><p className="text-xs text-gray-400">{m.map} • {new Date(m.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</p></div>
+                                                <button onClick={()=>joinMatch(m)} className="bg-green-600 px-4 rounded text-xs font-bold shadow-lg">JOIN</button>
+                                            </div>
+                                            <div className="grid grid-cols-3 text-center p-2 text-xs bg-black/20">
+                                                <div><p className="text-gray-500">POOL</p><p className="text-yellow-400 font-bold">₹{m.pool}</p></div>
+                                                <div><p className="text-gray-500">KILL</p><p className="text-blue-400 font-bold">₹{m.kill}</p></div>
+                                                <div><p className="text-gray-500">ENTRY</p><p className="text-white font-bold">₹{m.entry}</p></div>
+                                            </div>
+                                            {(m.participants || []).find(p => p.uid === user.uid) && (
+                                                <div className="bg-green-900/20 p-2 text-center text-xs text-green-400 font-bold">✅ MATCH JOINED</div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {view === 'wallet' && (
+                            <div className="glass p-6 rounded-2xl text-center space-y-4">
+                                <h1 className="text-4xl font-black neon-orange">₹{userData?.balance}</h1>
+                                <p className="text-xs text-gray-400">AVAILABLE BALANCE</p>
+                                <div className="bg-white p-2 w-32 h-32 mx-auto rounded"><img src={ASSETS.qr} className="w-full h-full"/></div>
+                                <input id="amt" type="number" placeholder="Amount" className="field text-center"/>
+                                <input id="utr" placeholder="UTR ID" className="field text-center"/>
+                                <button onClick={async ()=>{
+                                    const amt = document.getElementById('amt').value;
+                                    const utr = document.getElementById('utr').value;
+                                    if(!amt || !utr) return alert("Fill Details");
+                                    await db.collection('artifacts').doc('mksport').collection('transactions').add({
+                                        uid: user.uid, phone: userData.phone, amount: Number(amt), utr: utr, status: 'pending', date: new Date().toISOString()
+                                    });
+                                    alert("Request Sent!"); setView('home');
+                                }} className="w-full bg-green-600 py-3 rounded font-bold">DEPOSIT</button>
+                            </div>
+                        )}
+
+                        {view === 'admin' && (
+                            <div className="glass p-6 rounded-2xl border border-red-500/30">
+                                <h2 className="text-xl font-black text-red-500 mb-4">ADMIN PANEL</h2>
+                                <input id="m_title" placeholder="Title" className="field mb-2"/>
+                                <div className="flex gap-2 mb-2"><input id="m_entry" type="number" placeholder="Entry" className="field"/><input id="m_pool" type="number" placeholder="Pool" className="field"/></div>
+                                <input id="m_time" type="datetime-local" className="field mb-4"/>
+                                <button onClick={async ()=>{
+                                    const t = document.getElementById('m_title').value;
+                                    const e = document.getElementById('m_entry').value;
+                                    const p = document.getElementById('m_pool').value;
+                                    const tm = document.getElementById('m_time').value;
+                                    await db.collection('artifacts').doc('mksport').collection('matches').add({
+                                        title: t, entry: Number(e), pool: Number(p), time: tm, map: 'BERMUDA', kill: 20, maxPlayers: 48, current: 0, createdAt: new Date().toISOString()
+                                    }); alert("Posted!");
+                                }} className="w-full bg-red-600 py-3 rounded font-bold">PUBLISH MATCH</button>
+                            </div>
+                        )}
+
+                        {view === 'profile' && (
+                            <div className="space-y-4">
+                                <div onClick={unlockAdmin} className="glass p-6 rounded-2xl flex items-center gap-4 cursor-pointer">
+                                    <img src={ASSETS.logo} className="w-16 h-16 rounded-full border border-orange-500"/>
+                                    <div><h2 className="text-xl font-bold">{userData?.phone}</h2><p className="text-xs text-gray-500">ID: {user.uid.slice(0,6)}</p></div>
+                                </div>
+                                <button onClick={()=>auth.signOut()} className="w-full bg-red-900/30 text-red-500 py-3 rounded font-bold border border-red-500/30 flex items-center justify-center gap-2"><span className="text-xl">⏻</span> LOGOUT</button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="fixed bottom-0 w-full bg-black/90 p-3 flex justify-around border-t border-white/10 z-50 backdrop-blur-md">
+                        <button onClick={()=>setView('home')} className={view==='home'?'text-orange-500':'text-gray-500'}><span className="block text-center text-xl">🎮</span><span className="text-[10px] font-bold">PLAY</span></button>
+                        <button onClick={()=>setView('wallet')} className={view==='wallet'?'text-orange-500':'text-gray-500'}><span className="block text-center text-xl">💰</span><span className="text-[10px] font-bold">CASH</span></button>
+                        {userData?.role === 'admin' && <button onClick={()=>setView('admin')} className="text-red-500 relative -top-6 bg-black p-3 rounded-full border border-red-500"><span className="block text-center text-xl">🛡️</span></button>}
+                        <button onClick={()=>setView('profile')} className={view==='profile'?'text-orange-500':'text-gray-500'}><span className="block text-center text-xl">👤</span><span className="text-[10px] font-bold">ME</span></button>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
+
