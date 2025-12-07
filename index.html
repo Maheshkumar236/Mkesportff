@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MK SPORT - PRO</title>
     
     <!-- Libraries -->
@@ -10,6 +10,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -17,17 +18,39 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        body { background-color: #000000; color: white; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glass { background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .loader { width: 24px; height: 24px; border: 3px solid #FFF; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;900&display=swap');
+        
+        body { background-color: #050505; color: white; font-family: 'Rajdhani', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+        
+        .glass-3d {
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.9), rgba(10, 10, 10, 0.95));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .neon-text { text-shadow: 0 0 15px rgba(249, 115, 22, 0.8); }
+        .input-3d {
+            background: #0f0f0f; border: 1px solid #333; box-shadow: inset 2px 2px 5px #000; transition: all 0.3s;
+        }
+        .input-3d:focus { border-color: #f97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.2); }
+        .loader { width: 24px; height: 24px; border: 3px solid #f97316; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Loading Screen for Auto Login */
+        .splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 9999; display: flex; align-items: center; justify-content: center;
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // ⚠️ APNA ASLI FIREBASE CONFIG YAHAN PASTE KARO ⚠️
+        // ⚠️ APNA FIREBASE CONFIG YAHAN PASTE KARO ⚠️
         const firebaseConfig = {
   apiKey: "AIzaSyDOywyAcyTYLJGNEQGSArKUzX3-YWeGZyM",
   authDomain: "ff-mk-esports.firebaseapp.com",
@@ -37,20 +60,6 @@
   appId: "1:997484665784:web:751cf2b55b9ec7e7c34d4d"
 };
 
-        // --- INLINE ICONS (No External Dependency) ---
-        const Icons = {
-            Trophy: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
-            Wallet: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>,
-            Gamepad: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></svg>,
-            Chat: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>,
-            User: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-            Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-            Lock: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-            Check: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
-            X: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
-            Zap: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        };
-
         const ASSETS = {
             logo: "https://cdn-icons-png.flaticon.com/512/1604/1604335.png",
             bg: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2670&auto=format&fit=crop",
@@ -59,6 +68,7 @@
         };
 
         const { useState, useEffect } = React;
+        const { Trophy, Wallet, MessageSquare, Shield, Gamepad2, User, ChevronRight, LogOut, Lock, Check, X, Clock, MapPin, History, HelpCircle, FileText, Share2, Instagram, Youtube, Mail } = lucide;
 
         let app, auth, db;
         try {
@@ -66,43 +76,384 @@
             else app = firebase.app();
             auth = firebase.auth();
             db = firebase.firestore();
-        } catch (e) { console.error("Firebase Init Error", e); }
+        } catch (e) { console.error(e); }
 
-        const NavIcon = ({ icon: Icon, label, active, onClick, color="text-gray-500" }) => (
-            <button onClick={onClick} className={`flex flex-col items-center gap-1 ${active ? 'text-white scale-110' : color} transition-all`}>
-                <Icon />
-                <span className="text-[9px] font-bold">{label}</span>
+        const NavIcon = ({ icon: Icon, label, active, onClick }) => (
+            <button onClick={onClick} className={`relative group flex flex-col items-center gap-1 transition-all duration-300 ${active ? 'scale-110' : 'opacity-60'}`}>
+                <div className={`p-2 rounded-xl transition-all ${active ? 'bg-orange-500/20 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]' : 'text-gray-400'}`}>
+                    <Icon size={22} strokeWidth={active?2.5:2} />
+                </div>
+                <span className={`text-[9px] font-bold tracking-wider ${active ? 'text-orange-500' : 'text-gray-500'}`}>{label}</span>
             </button>
         );
 
         const App = () => {
+            // Main State
             const [user, setUser] = useState(null);
             const [userData, setUserData] = useState(null);
-            const [view, setView] = useState('auth');
+            const [view, setView] = useState('splash'); // Start with Splash screen for auto-login check
+            
+            // Data State
             const [matches, setMatches] = useState([]);
             const [deposits, setDeposits] = useState([]);
             const [chat, setChat] = useState([]);
+            
+            // Auth Form State
+            const [isRegistering, setIsRegistering] = useState(false); // Toggle Login/Register
             const [mobile, setMobile] = useState('');
+            const [password, setPassword] = useState('');
+            const [email, setEmail] = useState('');
+            const [confirmPass, setConfirmPass] = useState('');
             const [loading, setLoading] = useState(false);
-            const [initError, setInitError] = useState('');
+            
+            // Secret Tap
+            const [tapCount, setTapCount] = useState(0);
 
+            // --- AUTO LOGIN CHECK ---
             useEffect(() => {
-                if(!auth) { setInitError("Firebase Config Missing!"); return; }
-                
+                if(!auth) return;
                 const unsub = auth.onAuthStateChanged(async (u) => {
                     if (u) {
+                        // User is logged in
                         setUser(u);
-                        try {
-                            const docRef = db.collection('artifacts').doc('mksport').collection('users').doc(u.uid);
-                            const snap = await docRef.get();
-                            if(snap.exists) {
-                                setUserData(snap.data());
-                            } else {
-                                const newP = { uid: u.uid, balance: 0, role: 'user', phone: mobile || 'User' };
-                                await docRef.set(newP);
-                                setUserData(newP);
-                            }
-                            // Only switch to home if we have data
+                        const docRef = db.collection('artifacts').doc('mksport').collection('users').doc(u.uid);
+                        const snap = await docRef.get();
+                        if(snap.exists) {
+                            setUserData(snap.data());
+                            setView('home'); // Go directly to home
+                        } else {
+                            // Recover profile if missing
+                            const newP = { uid: u.uid, balance: 0, role: 'user', phone: mobile || 'User', joinedMatches: 0, kills: 0 };
+                            await docRef.set(newP);
+                            setUserData(newP);
+                            setView('home');
+                        }
+                    } else {
+                        // No user, show Auth screen
+                        setUser(null);
+                        setView('auth');
+                    }
+                });
+
+                // Listeners
+                if(db) {
+                    db.collection('artifacts').doc('mksport').collection('matches').orderBy('createdAt', 'desc')
+                        .onSnapshot(snap => setMatches(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+                    db.collection('artifacts').doc('mksport').collection('chat').orderBy('time', 'desc').limit(30)
+                        .onSnapshot(snap => setChat(snap.docs.map(d => ({id: d.id, ...d.data()})).reverse()));
+                    db.collection('artifacts').doc('mksport').collection('transactions').where('status', '==', 'pending')
+                        .onSnapshot(snap => setDeposits(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+                }
+                return () => unsub();
+            }, []);
+
+            // --- AUTH LOGIC ---
+            
+            const handleAuth = async () => {
+                // Validation
+                if(mobile.length !== 10) return alert("Enter valid 10-digit Mobile Number");
+                if(password.length < 6) return alert("Password must be at least 6 characters");
+                
+                setLoading(true);
+                
+                // We use phone number as email proxy for simple login ID
+                // User enters: 9999999999 -> We verify: 9999999999@mksport.com
+                const proxyEmail = `${mobile}@mksport.com`;
+
+                try {
+                    if(isRegistering) {
+                        // REGISTER FLOW
+                        if(!email.includes('@')) { setLoading(false); return alert("Enter valid Email Address"); }
+                        if(password !== confirmPass) { setLoading(false); return alert("Passwords do not match!"); }
+
+                        // Create Auth User
+                        const r = await auth.createUserWithEmailAndPassword(proxyEmail, password);
+                        
+                        // Create Database Profile
+                        await db.collection('artifacts').doc('mksport').collection('users').doc(r.user.uid).set({
+                            uid: r.user.uid,
+                            phone: mobile,
+                            email: email, // Store real email here
+                            balance: 0,
+                            role: 'user',
+                            joinedMatches: 0,
+                            kills: 0,
+                            createdAt: new Date().toISOString()
+                        });
+                        alert("Account Created! Welcome.");
+                        // onAuthStateChanged will handle redirection
+                    } else {
+                        // LOGIN FLOW
+                        await auth.signInWithEmailAndPassword(proxyEmail, password);
+                        // onAuthStateChanged will handle redirection
+                    }
+                } catch (e) {
+                    setLoading(false);
+                    if(e.code === 'auth/email-already-in-use') alert("Account already exists! Please Login.");
+                    else if(e.code === 'auth/wrong-password') alert("Wrong Password!");
+                    else if(e.code === 'auth/user-not-found') alert("Account not found. Please Register.");
+                    else alert("Error: " + e.message);
+                }
+            };
+
+            // GAME LOGIC
+            const joinMatch = async (m) => {
+                if((userData?.balance || 0) < m.entry) return alert("Low Balance! Please Deposit.");
+                const userRef = db.collection('artifacts').doc('mksport').collection('users').doc(user.uid);
+                const matchRef = db.collection('artifacts').doc('mksport').collection('matches').doc(m.id);
+                try {
+                    await db.runTransaction(async (t) => {
+                        const uDoc = await t.get(userRef);
+                        const mDoc = await t.get(matchRef);
+                        if(uDoc.data().balance < m.entry) throw "Low Balance";
+                        const p = mDoc.data().participants || [];
+                        if(p.find(x => x.uid === user.uid)) throw "Already Joined";
+                        const max = mDoc.data().maxPlayers || 48;
+                        const current = mDoc.data().current || 0;
+                        if(current >= max) throw "Match Full!";
+
+                        p.push({uid: user.uid, name: userData.phone});
+                        t.update(userRef, {balance: uDoc.data().balance - m.entry, joinedMatches: (uDoc.data().joinedMatches || 0) + 1});
+                        t.update(matchRef, {participants: p, current: current + 1});
+                    });
+                    alert("Joined Successfully!");
+                } catch(e) { alert(e); }
+            };
+
+            const handleDeposit = async (id, amount, uid, type) => {
+                if(!confirm(type === 'approve' ? `Add ₹${amount}?` : "Reject?")) return;
+                try {
+                    const txnRef = db.collection('artifacts').doc('mksport').collection('transactions').doc(id);
+                    const userRef = db.collection('artifacts').doc('mksport').collection('users').doc(uid);
+                    await db.runTransaction(async (t) => {
+                        if(type === 'approve') {
+                            const uDoc = await t.get(userRef);
+                            t.update(userRef, {balance: (uDoc.data().balance || 0) + Number(amount)});
+                        }
+                        t.update(txnRef, {status: type});
+                    });
+                    alert("Done!");
+                } catch(e) { alert(e); }
+            };
+
+            // HIDDEN ADMIN
+            const handleSecretTap = () => {
+                const newCount = tapCount + 1;
+                setTapCount(newCount);
+                if(newCount === 5) {
+                    const code = prompt("Enter Master Key:");
+                    if(code === "admin123") {
+                        db.collection('artifacts').doc('mksport').collection('users').doc(user.uid).update({role: 'admin'});
+                        alert("Admin Mode Unlocked!"); window.location.reload();
+                    } else if(code === "staff123") {
+                        db.collection('artifacts').doc('mksport').collection('users').doc(user.uid).update({role: 'staff'});
+                        alert("Staff Mode Unlocked!"); window.location.reload();
+                    }
+                    setTapCount(0);
+                }
+            };
+
+            // --- VIEWS ---
+            
+            if(view === 'splash') return (
+                <div className="splash-screen">
+                    <div className="text-center">
+                        <img src={ASSETS.logo} className="w-24 h-24 mx-auto animate-pulse rounded-full"/>
+                        <h1 className="text-orange-500 font-bold mt-4 tracking-widest">LOADING DATA...</h1>
+                    </div>
+                </div>
+            );
+
+            if(view === 'auth') return (
+                <div className="h-screen flex items-center justify-center p-6 bg-black relative overflow-hidden">
+                    <img src={ASSETS.bg} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-sm"/>
+                    
+                    <div className="glass-3d w-full max-w-sm p-8 relative z-10 rounded-3xl text-center border-t border-orange-500/50 max-h-[90vh] overflow-y-auto">
+                        <div className="w-20 h-20 mx-auto rounded-full bg-black p-1 mb-4 shadow-[0_0_30px_rgba(249,115,22,0.4)] border border-orange-500">
+                            <img src={ASSETS.logo} className="w-full h-full object-contain rounded-full"/>
+                        </div>
+                        <h1 className="text-4xl font-black italic tracking-tighter text-white neon-text mb-6">MK SPORT</h1>
+                        
+                        {/* TABS */}
+                        <div className="flex bg-slate-900 rounded-xl p-1 mb-6">
+                            <button onClick={()=>{setIsRegistering(false); setMobile(''); setPassword('');}} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${!isRegistering ? 'bg-orange-600 text-white' : 'text-gray-400'}`}>LOGIN</button>
+                            <button onClick={()=>{setIsRegistering(true); setMobile(''); setPassword(''); setEmail('');}} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${isRegistering ? 'bg-orange-600 text-white' : 'text-gray-400'}`}>REGISTER</button>
+                        </div>
+
+                        <div className="space-y-3">
+                            <input type="number" placeholder="Mobile Number" className="input-3d w-full p-3 rounded-xl text-white outline-none font-bold" value={mobile} onChange={e=>setMobile(e.target.value)} />
+                            
+                            {isRegistering && (
+                                <input type="email" placeholder="Email ID" className="input-3d w-full p-3 rounded-xl text-white outline-none" value={email} onChange={e=>setEmail(e.target.value)} />
+                            )}
+                            
+                            <input type="password" placeholder="Password" className="input-3d w-full p-3 rounded-xl text-white outline-none" value={password} onChange={e=>setPassword(e.target.value)} />
+                            
+                            {isRegistering && (
+                                <input type="password" placeholder="Confirm Password" className="input-3d w-full p-3 rounded-xl text-white outline-none" value={confirmPass} onChange={e=>setConfirmPass(e.target.value)} />
+                            )}
+
+                            <button onClick={handleAuth} className="w-full bg-gradient-to-r from-orange-600 to-red-600 p-4 rounded-xl font-bold text-lg shadow-[0_5px_20px_rgba(249,115,22,0.4)] mt-2">
+                                {loading ? <span className="loader"></span> : (isRegistering ? 'CREATE ACCOUNT' : 'LOGIN')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen pb-28 relative bg-black">
+                    {/* Header */}
+                    <div className="sticky top-0 bg-black/90 backdrop-blur-md p-4 flex justify-between items-center border-b border-white/10 z-20">
+                        <div className="flex items-center gap-3">
+                            <img src={ASSETS.logo} className="w-10 h-10 rounded-full border-2 border-orange-500"/>
+                            <div><h1 className="font-black italic text-lg leading-none tracking-tighter">MK SPORT</h1>
+                            <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 rounded font-bold">{userData?.role.toUpperCase()}</span></div>
+                        </div>
+                        <div className="bg-slate-900/80 px-4 py-2 rounded-full flex items-center gap-2 border border-orange-500/30">
+                            <img src={ASSETS.coin} className="w-5 h-5"/>
+                            <span className="font-bold text-lg text-white">₹{userData?.balance || 0}</span>
+                        </div>
+                    </div>
+
+                    <div className="p-4 max-w-md mx-auto space-y-6">
+                        {view === 'home' && (
+                            <>
+                                <div className="h-48 rounded-3xl relative overflow-hidden glass-3d group">
+                                    <img src={ASSETS.bg} className="absolute inset-0 w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-110"/>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent"></div>
+                                    <div className="absolute bottom-5 left-5">
+                                        <div className="flex items-center gap-2 mb-2"><span className="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded animate-pulse">LIVE</span><span className="text-orange-400 text-xs font-bold">● {matches.length} Matches</span></div>
+                                        <h2 className="text-3xl font-black italic leading-none">ELITE SCRIMS</h2>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    {matches.map(m => (
+                                        <div key={m.id} className="glass-3d rounded-2xl overflow-hidden transform transition-all hover:scale-[1.02]">
+                                            <div className="p-4 bg-gradient-to-r from-white/5 to-transparent flex justify-between items-start border-b border-white/5">
+                                                <div><h3 className="font-bold text-lg text-white">{m.title}</h3><div className="flex gap-2 mt-1"><span className="text-[10px] bg-black/50 px-2 py-1 rounded text-gray-300 flex items-center gap-1"><MapPin size={10}/> {m.map}</span><span className="text-[10px] bg-black/50 px-2 py-1 rounded text-gray-300 flex items-center gap-1"><Clock size={10}/> {new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div></div>
+                                                {(userData?.role === 'admin' || userData?.role === 'staff') ? (
+                                                     <button onClick={()=>{
+                                                         const rid = prompt("Update Room ID:", m.roomId); const pass = prompt("Update Password:", m.roomPass);
+                                                         if(rid) db.collection('artifacts').doc('mksport').collection('matches').doc(m.id).update({roomId: rid, roomPass: pass});
+                                                     }} className="bg-blue-600 px-3 py-1 rounded text-xs font-bold shadow-lg">EDIT</button>
+                                                ) : (
+                                                    <button onClick={()=>joinMatch(m)} disabled={(m.current||0)>=(m.maxPlayers||48)} className={`px-5 py-2 rounded-lg text-xs font-bold shadow-lg ${(m.current||0)>=(m.maxPlayers||48) ? 'bg-gray-700' : 'bg-gradient-to-r from-green-600 to-green-500'}`}>{(m.current||0)>=(m.maxPlayers||48) ? 'FULL' : 'JOIN'}</button>
+                                                )}
+                                            </div>
+                                            <div className="grid grid-cols-3 text-center p-3 text-xs bg-black/30 backdrop-blur-sm">
+                                                <div className="border-r border-white/5"><p className="text-gray-500 text-[10px]">POOL</p><p className="text-yellow-400 font-bold text-base">₹{m.pool}</p></div>
+                                                <div className="border-r border-white/5"><p className="text-gray-500 text-[10px]">KILL</p><p className="text-blue-400 font-bold text-base">₹{m.kill || 20}</p></div>
+                                                <div><p className="text-gray-500 text-[10px]">ENTRY</p><p className="text-white font-bold text-base">₹{m.entry}</p></div>
+                                            </div>
+                                            <div className="px-4 pb-4 pt-2">
+                                                <div className="flex justify-between text-[10px] text-gray-400 mb-1"><span>Slots Filled</span><span>{m.current||0} / {m.maxPlayers || 48}</span></div>
+                                                <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden"><div className="bg-orange-500 h-full shadow-[0_0_10px_#f97316]" style={{width: `${((m.current||0)/(m.maxPlayers||48))*100}%`}}></div></div>
+                                            </div>
+                                            {(m.participants || []).find(p => p.uid === user.uid) && (
+                                                <div className="m-3 p-3 bg-green-900/20 border border-green-500/30 rounded-xl text-center"><p className="text-green-500 text-xs font-bold tracking-wider mb-1">✅ MATCH JOINED</p>
+                                                    {m.roomId ? (<div className="flex justify-center gap-6 mt-2 text-sm"><div className="bg-black/40 px-3 py-1 rounded">ID: <b className="text-white select-all">{m.roomId}</b></div><div className="bg-black/40 px-3 py-1 rounded">PASS: <b className="text-white select-all">{m.roomPass}</b></div></div>) : <p className="text-[10px] text-gray-500 animate-pulse">Wait for ID/PASS</p>}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {view === 'admin' && (
+                            <div className="space-y-6">
+                                <h2 className="text-2xl font-black text-red-500 tracking-tighter neon-text">COMMAND CENTER</h2>
+                                <div className="glass-3d p-6 rounded-3xl border border-red-500/30">
+                                    <h3 className="font-bold text-white mb-4 flex items-center gap-2"><Gamepad2 size={18}/> CREATE MATCH</h3>
+                                    <input id="m_title" placeholder="Match Title" className="input-3d w-full p-3 rounded-xl text-sm text-white mb-3"/>
+                                    <div className="grid grid-cols-2 gap-3 mb-3"><input id="m_entry" type="number" placeholder="Entry Fee" className="input-3d w-full p-3 rounded-xl text-sm text-white"/><input id="m_pool" type="number" placeholder="Prize Pool" className="input-3d w-full p-3 rounded-xl text-sm text-white"/></div>
+                                    <div className="grid grid-cols-2 gap-3 mb-3"><div className="space-y-1"><label className="text-[10px] text-gray-400 ml-1">START TIME</label><input id="m_time" type="datetime-local" className="input-3d w-full p-3 rounded-xl text-sm text-white"/></div><div className="space-y-1"><label className="text-[10px] text-gray-400 ml-1">MAX PLAYERS</label><input id="m_max" type="number" placeholder="48" defaultValue="48" className="input-3d w-full p-3 rounded-xl text-sm text-white"/></div></div>
+                                    <button onClick={async ()=>{
+                                        const t = document.getElementById('m_title').value; const e = document.getElementById('m_entry').value; const p = document.getElementById('m_pool').value; const time = document.getElementById('m_time').value; const max = document.getElementById('m_max').value;
+                                        if(!t || !e || !p || !time) return alert("Fill all fields!");
+                                        await db.collection('artifacts').doc('mksport').collection('matches').add({
+                                            title: t, entry: Number(e), pool: Number(p), time: time, maxPlayers: Number(max), kill: 20, map: 'BERMUDA', current: 0, createdAt: new Date().toISOString()
+                                        }); alert("Match Published!");
+                                    }} className="w-full bg-red-600 hover:bg-red-500 p-3 rounded-xl font-bold text-sm shadow-[0_5px_15px_rgba(220,38,38,0.4)] transition-all">PUBLISH MATCH</button>
+                                </div>
+                                <div className="glass-3d p-6 rounded-3xl"><h3 className="font-bold text-white mb-4 flex items-center gap-2"><Wallet size={18}/> PENDING DEPOSITS</h3>
+                                    {deposits.length === 0 ? <p className="text-center text-xs text-gray-600 py-4">No pending requests.</p> : deposits.map(d => (
+                                        <div key={d.id} className="bg-slate-900/50 border border-white/5 p-4 rounded-xl mb-3 flex justify-between items-center"><div><p className="font-bold text-lg text-white">₹{d.amount}</p><p className="text-[10px] text-gray-400 font-mono">UTR: {d.utr}</p><p className="text-[10px] text-orange-400">User: {d.phone}</p></div><div className="flex gap-3"><button onClick={()=>handleDeposit(d.id, d.amount, d.uid, 'approve')} className="bg-green-600 p-2.5 rounded-lg text-white shadow-lg"><Check size={18}/></button><button onClick={()=>handleDeposit(d.id, 0, d.uid, 'reject')} className="bg-red-600 p-2.5 rounded-lg text-white shadow-lg"><X size={18}/></button></div></div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {view === 'wallet' && (
+                             <div className="glass-3d p-8 rounded-3xl text-center space-y-6">
+                                 <div className="relative"><h1 className="text-6xl font-black neon-text">₹{userData?.balance}</h1><p className="text-orange-500 text-xs tracking-[0.5em] font-bold mt-2">AVAILABLE FUNDS</p></div>
+                                 <div className="bg-white p-3 w-48 h-48 mx-auto rounded-2xl shadow-xl"><img src={ASSETS.qr} className="w-full h-full object-contain"/></div>
+                                 <p className="text-xs text-gray-400">mksport@upi</p>
+                                 <div className="space-y-3"><input id="amount" type="number" placeholder="Amount (e.g. 100)" className="input-3d w-full p-4 rounded-xl text-white text-center font-bold"/><input id="utr" placeholder="Enter UTR / Transaction ID" className="input-3d w-full p-4 rounded-xl text-white text-center text-sm"/></div>
+                                 <button onClick={async ()=>{
+                                     const amt = document.getElementById('amount').value; const utr = document.getElementById('utr').value;
+                                     if(!utr || !amt) return alert("Enter Amount and UTR");
+                                     await db.collection('artifacts').doc('mksport').collection('transactions').add({ uid: user.uid, phone: userData.phone, amount: Number(amt), utr: utr, status: 'pending', timestamp: new Date().toISOString() });
+                                     alert("Deposit Request Sent!"); setView('home');
+                                 }} className="w-full bg-green-600 p-4 rounded-xl font-bold shadow-[0_5px_15px_rgba(22,163,74,0.4)]">SUBMIT REQUEST</button>
+                             </div>
+                        )}
+
+                        {view === 'profile' && (
+                            <div className="space-y-4">
+                                <div className="glass-3d p-6 rounded-3xl relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-[50px] rounded-full"></div>
+                                    <div className="flex items-center gap-5 relative z-10">
+                                        <div onClick={handleSecretTap} className="w-20 h-20 rounded-full bg-gradient-to-tr from-orange-500 to-red-600 p-1 cursor-pointer active:scale-90 transition-transform shadow-[0_0_20px_rgba(249,115,22,0.5)]">
+                                            <img src={ASSETS.logo} className="w-full h-full rounded-full bg-black object-cover"/>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-2xl font-black italic tracking-wide text-white">{userData?.phone}</h2>
+                                            <p className="text-xs text-orange-400 font-mono bg-orange-500/10 px-2 py-0.5 rounded inline-block mt-1">UID: {user.uid.slice(0,6)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="glass-3d p-3 rounded-2xl text-center"><p className="text-[10px] text-gray-500 mb-1">MATCHES</p><h3 className="text-xl font-bold">{userData?.joinedMatches || 0}</h3></div>
+                                    <div className="glass-3d p-3 rounded-2xl text-center"><p className="text-[10px] text-gray-500 mb-1">KILLS</p><h3 className="text-xl font-bold text-orange-500">{userData?.kills || 0}</h3></div>
+                                    <div className="glass-3d p-3 rounded-2xl text-center"><p className="text-[10px] text-gray-500 mb-1">WON</p><h3 className="text-xl font-bold text-green-500">₹0</h3></div>
+                                </div>
+                                <div className="space-y-2">
+                                    <button className="glass-3d w-full p-4 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-colors">
+                                        <div className="flex items-center gap-3"><History size={20} className="text-blue-500"/><span className="font-bold text-sm">Match History</span></div><ChevronRight size={16} className="text-gray-600"/>
+                                    </button>
+                                    <button className="glass-3d w-full p-4 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-colors">
+                                        <div className="flex items-center gap-3"><HelpCircle size={20} className="text-green-500"/><span className="font-bold text-sm">Help & Support</span></div><ChevronRight size={16} className="text-gray-600"/>
+                                    </button>
+                                </div>
+                                <button onClick={()=>auth.signOut()} className="w-full bg-red-900/20 text-red-500 p-4 rounded-xl font-bold flex items-center justify-center gap-2 border border-red-500/20"><LogOut size={18}/> LOGOUT</button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="fixed bottom-0 w-full bg-black/90 backdrop-blur-xl border-t border-white/10 flex justify-around py-4 pb-safe z-50">
+                        <NavIcon icon={Gamepad2} label="PLAY" active={view==='home'} onClick={()=>setView('home')}/>
+                        <NavIcon icon={Wallet} label="CASH" active={view==='wallet'} onClick={()=>setView('wallet')}/>
+                        {userData?.role === 'admin' ? (
+                            <button onClick={()=>setView('admin')} className="relative -top-8 bg-gradient-to-tr from-red-600 to-red-500 w-16 h-16 rounded-full flex items-center justify-center border-4 border-black shadow-[0_0_20px_rgba(220,38,38,0.6)]"><Shield size={28} className="text-white"/></button>
+                        ) : (
+                            <button onClick={()=>setView('home')} className="relative -top-8 bg-gradient-to-tr from-orange-600 to-orange-500 w-16 h-16 rounded-full flex items-center justify-center border-4 border-black shadow-[0_0_20px_rgba(249,115,22,0.6)]"><Trophy size={28} className="text-white"/></button>
+                        )}
+                        <NavIcon icon={MessageSquare} label="CHAT" active={view==='chat'} onClick={()=>setView('chat')}/>
+                        <NavIcon icon={User} label="ME" active={view==='profile'} onClick={()=>setView('profile')}/>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
+
                             setView('home');
                         } catch(e) {
                             console.error(e);
