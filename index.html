@@ -1,503 +1,1050 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ELITESTAR - Secure Esports Engine</title>
-    
-    <!-- Core Frameworks -->
+    <title>ELITESTAR | Professional Esports</title>
+    <!-- Tailwind CSS for Layout -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Rajdhani:wght@500;700&display=swap');
-        
-        :root { --neon: #FF6B00; --bg: #050505; }
-        
-        body { 
-            background: radial-gradient(circle at top right, #1a100a, #050505);
-            color: white; font-family: 'Rajdhani', sans-serif; 
-            margin: 0; padding: 0; overflow-x: hidden;
+        :root {
+            --neon-orange: #FF6B00;
+            --dark-bg: #0a0a0c;
+            --panel-bg: rgba(25, 25, 28, 0.95);
+            --card-bg: #1e1e22;
+            --text-gray: #a0a0a0;
         }
 
-        .font-gaming { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* 3D Glassmorphism */
-        .glass-3d { 
-            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Rajdhani', sans-serif;
         }
 
-        .neon-glow { filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.5)); }
-        .neon-text { color: var(--neon); text-shadow: 0 0 15px rgba(255, 107, 0, 0.5); }
-
-        /* Splash Screen */
-        #splash { 
-            position: fixed; inset: 0; background: #000; z-index: 10000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.8s ease-in-out;
+        body {
+            background-color: var(--dark-bg);
+            background: radial-gradient(circle at top right, #1a110a 0%, #0a0a0c 100%);
+            color: white;
+            margin: 0;
+            overflow-x: hidden;
+            height: 100vh;
         }
-        
-        .loader-line { width: 180px; height: 2px; background: #111; margin-top: 30px; border-radius: 10px; overflow: hidden; }
-        .loader-fill { width: 0%; height: 100%; background: var(--neon); animation: fill 2.5s forwards; box-shadow: 0 0 15px var(--neon); }
-        @keyframes fill { to { width: 100%; } }
 
-        ::-webkit-scrollbar { width: 0px; }
-        input { background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 16px; outline: none !important; color: white !important; }
-        input:focus { border-color: var(--neon) !important; box-shadow: 0 0 15px rgba(255,107,0,0.2); }
-        
-        .btn-premium { 
-            background: linear-gradient(to right, #FF6B00, #FF8E3C);
-            color: black; font-weight: 900; border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(255,107,0,0.4);
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-orange); border-radius: 10px; }
+
+        /* App Containers */
+        #app-root {
+            max-width: 500px;
+            margin: 0 auto;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
-        .btn-premium:active { transform: scale(0.95); }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+            padding-bottom: 70px; /* Space for nav */
+        }
+
+        .screen.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Gaming UI Elements */
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 107, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+        }
+
+        .neon-border {
+            border: 1px solid var(--neon-orange);
+            box-shadow: 0 0 10px rgba(255, 107, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #FF6B00 0%, #FF8533 100%);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:active { transform: scale(0.95); opacity: 0.9; }
+
+        .btn-outline {
+            border: 1px solid var(--neon-orange);
+            color: var(--neon-orange);
+            background: transparent;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px;
+            transition: 0.3s;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--neon-orange);
+            background: rgba(255, 107, 0, 0.05);
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            font-size: 16px;
+        }
+
+        /* Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            height: 70px;
+            background: #111114;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            z-index: 1000;
+            padding: 0 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-gray);
+            font-size: 12px;
+            transition: 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--neon-orange);
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Tournament Cards */
+        .tournament-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .card-header {
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .mode-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--neon-orange);
+            border: 1px solid var(--neon-orange);
+        }
+
+        /* Loading Spinner */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--dark-bg);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,107,0,0.1);
+            border-top: 3px solid var(--neon-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Notification Modal */
+        #modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .custom-modal {
+            background: var(--card-bg);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 350px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid var(--neon-orange);
+        }
     </style>
 </head>
 <body>
 
-    <div id="splash">
-        <div class="neon-glow" style="animation: pulse 2s infinite">
-            <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <div class="mt-8 font-gaming text-3xl text-white italic tracking-[8px]">ELITESTAR</div>
-        <div class="loader-line"><div class="loader-fill"></div></div>
-        <div class="mt-4 text-[9px] text-gray-500 uppercase tracking-[4px] font-bold">Verifying Encrypted Session...</div>
+    <div id="loader">
+        <div class="spinner"></div>
+        <p class="mt-4 orbitron tracking-widest text-sm">ELITESTAR</p>
     </div>
 
-    <div id="root"></div>
+    <div id="modal-overlay">
+        <div class="custom-modal" id="modal-content">
+            <h3 class="text-xl font-bold mb-2" id="modal-title">Notice</h3>
+            <p class="text-gray-400 mb-6" id="modal-text">Message goes here.</p>
+            <button class="btn-primary w-full" onclick="closeModal()">OK</button>
+        </div>
+    </div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+    <div id="app-root">
 
-        // --- MASTER CONFIG ---
-        const RAZORPAY_KEY = "rzp_test_SP3kbkcpNZf8Zl";
-        const GEMINI_API_KEY = "AIzaSyDuO-mZyPg0wrOodjBrJRS7fqSDsvW4SUk";
-        const firebaseConfig = {
-  apiKey: "AIzaSyBEaZAroIG78Q00DGqiV5p0bM-AdFx8Dzo",
-  authDomain: "elitestar-with.firebaseapp.com",
-  projectId: "elitestar-with",
-  storageBucket: "elitestar-with.firebasestorage.app",
-  messagingSenderId: "160838578850",
-  appId: "1:160838578850:web:5e697f018bf29c3b3f9dfb",
-  measurementId: "G-SMSGSCYRBW"
-};
+        <!-- WELCOME SCREEN -->
+        <section id="screen-welcome" class="screen flex items-center justify-center p-6 pb-0">
+            <div class="text-center mb-12">
+                <img src="https://img.icons8.com/nolan/128/trophy.png" alt="Logo" class="mx-auto mb-4">
+                <h1 class="orbitron text-4xl font-bold tracking-tighter text-white">ELITE<span class="text-[#FF6B00]">STAR</span></h1>
+                <p class="text-gray-400 uppercase tracking-widest text-xs mt-2">Next Gen Esports Platform</p>
+            </div>
+            
+            <div class="w-full space-y-4">
+                <button onclick="showScreen('screen-login')" class="btn-primary w-full py-4 text-lg">Login to Account</button>
+                <button onclick="showScreen('screen-register')" class="btn-outline w-full py-4 text-lg">Create New Account</button>
+            </div>
+            <div class="mt-12 text-center text-xs text-gray-500">
+                By joining, you agree to our Terms of Service.
+            </div>
+        </section>
 
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const appId = "elitestar-v1";
+        <!-- LOGIN SCREEN -->
+        <section id="screen-login" class="screen p-6">
+            <div class="flex items-center mb-8">
+                <button onclick="showScreen('screen-welcome')" class="text-2xl mr-4"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-2xl font-bold">Welcome Back</h2>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="input-group">
+                    <label class="block text-xs text-gray-400 mb-1">Phone Number</label>
+                    <input type="tel" id="login-phone" placeholder="+91 00000 00000">
+                </div>
+                <div class="input-group">
+                    <label class="block text-xs text-gray-400 mb-1">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••">
+                </div>
+                
+                <button onclick="handleLogin()" class="btn-primary w-full py-4">Login</button>
+                
+                <div class="text-center">
+                    <button onclick="showScreen('screen-forgot')" class="text-[#FF6B00] text-sm">Forgot Password?</button>
+                </div>
+            </div>
+        </section>
 
-        // --- STABLE ICONS ---
-        const Icon = ({ name, size = 20, className = "" }) => {
-            const paths = {
-                Trophy: `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34M12 2a5 5 0 0 0-5 5v2c0 2.2 1.8 4 4 4h2c2.2 0 4-1.8 4-4V7a5 5 0 0 0-5-5z"/>`,
-                Home: `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
-                Play: `<path d="M14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/>`,
-                Chat: `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
-                Users: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>`,
-                Wallet: `<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M22 12h-4a2 2 0 0 0 0 4h4"/>`,
-                Shield: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
-                Bot: `<rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/>`,
-                Send: `<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>`,
-                Lock: `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>`,
-                Mail: `<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`,
-                User: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
-                Zap: `<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>`,
-                X: `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`
-            };
-            return (
-                <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: paths[name] || '' }} />
-            );
-        };
+        <!-- REGISTER SCREEN -->
+        <section id="screen-register" class="screen p-6">
+            <div class="flex items-center mb-6">
+                <button onclick="showScreen('screen-welcome')" class="text-2xl mr-4"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-2xl font-bold">Join the Elite</h2>
+            </div>
+            
+            <div class="space-y-4 overflow-y-auto pr-2">
+                <div class="input-group">
+                    <label class="block text-xs text-gray-400 mb-1">Username</label>
+                    <input type="text" id="reg-username" placeholder="EsportsKing">
+                </div>
+                <div class="input-group">
+                    <label class="block text-xs text-gray-400 mb-1">Phone Number</label>
+                    <input type="tel" id="reg-phone" placeholder="9876543210">
+                </div>
+                <div class="input-group">
+                    <label class="block text-xs text-gray-400 mb-1">Date of Birth</label>
+                    <input type="date" id="reg-dob" class="text-white">
+                </div>
+                <div class="input-group">
+                    <label class="block text-xs text-gray-400 mb-1">Password</label>
+                    <input type="password" id="reg-password" placeholder="Min 6 characters">
+                </div>
+                <div class="input-group">
+                    <label class="block text-xs text-gray-400 mb-1">Confirm Password</label>
+                    <input type="password" id="reg-confirm" placeholder="••••••••">
+                </div>
+                
+                <button onclick="handleRegistration()" class="btn-primary w-full py-4">Verify Phone Number</button>
+            </div>
+        </section>
 
-        const App = () => {
-            const [view, setView] = useState('home');
-            const [user, setUser] = useState(null);
-            const [profile, setProfile] = useState(null);
-            const [matches, setMatches] = useState([]);
-            const [loading, setLoading] = useState(true);
-            const [isBotOpen, setIsBotOpen] = useState(false);
-            const [activeJoin, setActiveJoin] = useState(null);
+        <!-- OTP SCREEN -->
+        <section id="screen-otp" class="screen p-6 flex items-center justify-center">
+            <div class="glass-panel w-full p-8 text-center neon-border">
+                <div class="w-16 h-16 bg-[#FF6B0022] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-shield-halved text-[#FF6B00] text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Security Code</h2>
+                <p class="text-gray-400 text-sm mb-8">We sent a 6-digit code to your phone number. Enter it below.</p>
+                
+                <div class="flex justify-between gap-2 mb-8" id="otp-inputs">
+                    <input type="number" maxlength="1" class="w-12 h-14 bg-white/5 border border-white/10 rounded-lg text-center text-xl font-bold focus:border-[#FF6B00] outline-none">
+                    <input type="number" maxlength="1" class="w-12 h-14 bg-white/5 border border-white/10 rounded-lg text-center text-xl font-bold focus:border-[#FF6B00] outline-none">
+                    <input type="number" maxlength="1" class="w-12 h-14 bg-white/5 border border-white/10 rounded-lg text-center text-xl font-bold focus:border-[#FF6B00] outline-none">
+                    <input type="number" maxlength="1" class="w-12 h-14 bg-white/5 border border-white/10 rounded-lg text-center text-xl font-bold focus:border-[#FF6B00] outline-none">
+                    <input type="number" maxlength="1" class="w-12 h-14 bg-white/5 border border-white/10 rounded-lg text-center text-xl font-bold focus:border-[#FF6B00] outline-none">
+                    <input type="number" maxlength="1" class="w-12 h-14 bg-white/5 border border-white/10 rounded-lg text-center text-xl font-bold focus:border-[#FF6B00] outline-none">
+                </div>
+                
+                <button onclick="verifyOTP()" class="btn-primary w-full py-4">Verify & Join</button>
+                <p class="mt-6 text-gray-500 text-xs">Didn't receive code? <span class="text-[#FF6B00]">Resend in 30s</span></p>
+            </div>
+        </section>
 
-            useEffect(() => {
-                // Splash Timer
-                setTimeout(() => {
-                    const sp = document.getElementById('splash');
-                    sp.style.opacity = '0';
-                    setTimeout(() => sp.style.display = 'none', 800);
-                }, 3000);
+        <!-- HOME SCREEN -->
+        <section id="screen-home" class="screen">
+            <header class="p-4 flex justify-between items-center bg-[#111114]">
+                <div class="flex items-center">
+                    <div id="user-avatar" class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 mr-3 overflow-hidden border border-white/20">
+                        <img src="" alt="" id="header-avatar" class="hidden">
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Welcome,</p>
+                        <p id="header-username" class="font-bold">Player</p>
+                    </div>
+                </div>
+                <div class="bg-white/5 px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10">
+                    <i class="fa-solid fa-wallet text-[#FF6B00] text-sm"></i>
+                    <span id="header-balance" class="font-bold text-sm">₹0.00</span>
+                    <button onclick="showScreen('screen-wallet')" class="w-5 h-5 bg-[#FF6B00] rounded-full flex items-center justify-center text-[10px]">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </header>
 
-                // Auth Listener
-                const unsubAuth = auth.onAuthStateChanged(async (u) => {
-                    if (u) {
-                        setUser(u);
-                        syncProfile(u.uid);
-                    } else {
-                        setUser(null);
-                        setProfile(null);
-                        setLoading(false);
-                    }
-                });
+            <div class="flex-1 overflow-y-auto p-4 space-y-6">
+                <!-- Promo Slider -->
+                <div class="rounded-2xl overflow-hidden h-40 relative group">
+                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1000" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+                        <h3 class="text-xl font-bold italic">ELITE CHAMPIONS LEAGUE</h3>
+                        <p class="text-xs text-gray-300">Prize Pool: ₹10,000 | Join Now</p>
+                    </div>
+                </div>
 
-                const unsubMatches = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches')
-                    .onSnapshot(snap => setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-
-                return () => { unsubAuth(); unsubMatches(); };
-            }, []);
-
-            const syncProfile = (uid) => {
-                const ref = db.collection('artifacts').doc(appId).collection('users').doc(uid).collection('profile').doc('data');
-                ref.onSnapshot(snap => {
-                    if (snap.exists) setProfile(snap.data());
-                    setLoading(false);
-                });
-            };
-
-            const handleDeposit = (amt) => {
-                const opt = {
-                    key: RAZORPAY_KEY, amount: amt * 100, currency: "INR", name: "ELITESTAR",
-                    handler: async (res) => {
-                        await db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('profile').doc('data').update({ balance: firebase.firestore.FieldValue.increment(parseInt(amt)) });
-                        alert("Deposit Successful!");
-                    },
-                    prefill: { name: profile?.username }, theme: { color: "#FF6B00" }
-                };
-                new Razorpay(opt).open();
-            };
-
-            const askBot = async (q) => {
-                try {
-                    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
-                        method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: q }] }] })
-                    });
-                    const d = await r.json();
-                    return d.candidates[0].content.parts[0].text;
-                } catch(e) { return "Bot maintenance mein hai. Tournament dekhein!"; }
-            };
-
-            if (loading) return null;
-
-            // --- 4. SHOW AUTH SCREEN IF NOT LOGGED IN ---
-            if (!user) return <AuthView db={db} auth={auth} appId={appId} />;
-
-            return (
-                <div className="max-w-md mx-auto min-h-screen pb-32 relative shadow-2xl">
-                    {/* Header */}
-                    <header className="p-4 flex justify-between items-center sticky top-0 z-[500] backdrop-blur-3xl bg-black/60 border-b border-white/5">
-                        <div className="flex items-center gap-3" onClick={() => setView('home')}>
-                            <div className="bg-gradient-to-tr from-[#FF6B00] to-orange-500 p-2 rounded-2xl shadow-[0_0_20px_rgba(255,107,0,0.4)]">
-                                <Icon name="Trophy" size={20} className="text-black" />
-                            </div>
-                            <span className="font-gaming text-xl italic font-black">ELITE<span className="neon-text">STAR</span></span>
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-panel p-4 flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                            <i class="fa-solid fa-trophy text-[#FF6B00]"></i>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-right">
-                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-none mb-1">Balance</p>
-                                <p className="text-md font-black text-[#FF6B00]">₹{profile?.balance || 0}</p>
-                            </div>
-                            <div className="w-11 h-11 glass-3d p-[1px]" onClick={() => setView('profile')}>
-                                <div className="w-full h-full bg-black rounded-[20px] flex items-center justify-center font-black text-[#FF6B00] border border-white/10">{profile?.username?.[0] || 'E'}</div>
-                            </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Tournaments</p>
+                            <p class="font-bold">24 Active</p>
                         </div>
-                    </header>
-
-                    {/* Views */}
-                    <main className="p-5 space-y-8 animate-in slide-in-from-bottom-6 duration-700">
-                        {view === 'home' && <HomeView profile={profile} matches={matches} setView={setView} />}
-                        {view === 'play' && <ArenaView matches={matches} onJoin={setActiveJoin} />}
-                        {view === 'chat' && <ChatView profile={profile} db={db} appId={appId} />}
-                        {view === 'squad' && <SquadView profile={profile} />}
-                        {view === 'wallet' && <WalletView profile={profile} onDep={handleDeposit} />}
-                        {view === 'admin' && <AdminPanel matches={matches} db={db} appId={appId} />}
-                        {view === 'staff' && <StaffPanel matches={matches} db={db} appId={appId} />}
-                        {view === 'profile' && <ProfileView profile={profile} auth={auth} />}
-                    </main>
-
-                    {/* Bottom Navbar (Feature 17) */}
-                    <nav className="fixed bottom-0 left-0 right-0 p-5 z-[1000] max-w-md mx-auto">
-                        <div className="glass-3d p-2 flex justify-around items-center !bg-black/90 shadow-[0_-20px_50px_rgba(0,0,0,1)]">
-                            <NavBtn active={view === 'home'} icon="Home" label="Hub" onClick={() => setView('home')} />
-                            <NavBtn active={view === 'play'} icon="Play" label="Arena" onClick={() => setView('play')} />
-                            <NavBtn active={view === 'chat'} icon="Chat" label="Comms" onClick={() => setView('chat')} />
-                            <NavBtn active={view === 'squad'} icon="Users" label="Squad" onClick={() => setView('squad')} />
-                            <NavBtn active={view === 'wallet'} icon="Wallet" label="Wallet" onClick={() => setView('wallet')} />
-                            {(profile?.role === 'admin' || profile?.role === 'staff') && <NavBtn active={view === 'admin' || view === 'staff'} icon="Shield" label="Admin" onClick={() => setView(profile.role)} />}
+                    </div>
+                    <div class="glass-panel p-4 flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                            <i class="fa-solid fa-users text-green-500"></i>
                         </div>
-                    </nav>
+                        <div>
+                            <p class="text-xs text-gray-400">Players</p>
+                            <p class="font-bold">1.2k Online</p>
+                        </div>
+                    </div>
+                </div>
 
-                    {activeJoin && <JoinModal match={activeJoin} profile={profile} close={() => setActiveJoin(null)} db={db} appId={appId} />}
+                <!-- Quick Match List -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-lg">Featured Matches</h4>
+                        <button onclick="showScreen('screen-tournaments')" class="text-[#FF6B00] text-sm">See All</button>
+                    </div>
+                    <div id="home-featured-matches" class="space-y-4">
+                        <!-- Matches loaded dynamically -->
+                        <p class="text-center text-gray-600 text-sm py-4">Scanning for active battles...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOURNAMENT SCREEN -->
+        <section id="screen-tournaments" class="screen">
+            <div class="p-6 bg-[#111114]">
+                <h2 class="text-2xl font-bold mb-4">Tournaments</h2>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                    <button class="bg-[#FF6B00] px-6 py-2 rounded-full text-sm font-bold">ALL</button>
+                    <button class="bg-white/5 px-6 py-2 rounded-full text-sm font-bold">SOLO</button>
+                    <button class="bg-white/5 px-6 py-2 rounded-full text-sm font-bold">SQUAD</button>
+                    <button class="bg-white/5 px-6 py-2 rounded-full text-sm font-bold">CLASH</button>
+                </div>
+            </div>
+            
+            <div id="tournament-list" class="flex-1 overflow-y-auto p-4">
+                <!-- Template Tournament Card -->
+            </div>
+        </section>
+
+        <!-- CHAT LIST SCREEN -->
+        <section id="screen-chats" class="screen">
+            <div class="p-6 bg-[#111114] flex justify-between items-center">
+                <h2 class="text-2xl font-bold">Messages</h2>
+                <button onclick="openSearchModal()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
+                    <i class="fa-solid fa-plus text-[#FF6B00]"></i>
+                </button>
+            </div>
+            
+            <div id="chat-list" class="flex-1 overflow-y-auto">
+                <div class="p-10 text-center opacity-30">
+                    <i class="fa-solid fa-comments text-6xl mb-4"></i>
+                    <p>No conversations yet.<br>Start searching for players!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- WALLET SCREEN -->
+        <section id="screen-wallet" class="screen">
+            <div class="p-6 bg-[#111114]">
+                <h2 class="text-2xl font-bold">Wallet</h2>
+            </div>
+            
+            <div class="p-4 space-y-6 flex-1 overflow-y-auto">
+                <div class="glass-panel p-6 neon-border relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fa-solid fa-wallet text-6xl"></i>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-1">Available Balance</p>
+                    <h3 class="text-4xl font-bold mb-6" id="wallet-balance">₹0.00</h3>
                     
-                    {/* Bot (Feature 13) */}
-                    <div className="fixed bottom-28 right-6 z-[2000]">
-                        <button onClick={() => setIsBotOpen(!isBotOpen)} className="w-14 h-14 bg-[#FF6B00] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all"><Icon name="Bot" size={28} className="text-black" /></button>
-                        {isBotOpen && <EliteBot close={() => setIsBotOpen(false)} onAsk={askBot} />}
+                    <div class="flex gap-4">
+                        <button onclick="openDepositModal()" class="btn-primary flex-1 py-3 text-sm">Deposit</button>
+                        <button onclick="openWithdrawModal()" class="btn-outline flex-1 py-3 text-sm">Withdraw</button>
                     </div>
                 </div>
-            );
+
+                <h4 class="font-bold text-lg mb-4">Recent Transactions</h4>
+                <div id="transaction-list" class="space-y-3">
+                    <!-- Transactions here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- PROFILE SCREEN -->
+        <section id="screen-profile" class="screen">
+            <div class="h-48 bg-gradient-to-b from-[#FF6B0044] to-transparent relative p-6 flex flex-col justify-end">
+                <div class="flex items-center gap-4">
+                    <div class="w-20 h-20 rounded-2xl bg-white/10 border-2 border-[#FF6B00] overflow-hidden">
+                        <img src="" id="profile-img" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold" id="profile-name">Player Name</h2>
+                        <p class="text-xs text-[#FF6B00] font-mono tracking-wider" id="profile-uid">UID: 0000000000</p>
+                        <div class="flex gap-2 mt-2">
+                            <span class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded border border-blue-500/30">Lvl 45</span>
+                            <span class="bg-yellow-500/20 text-yellow-400 text-[10px] px-2 py-0.5 rounded border border-yellow-500/30">ELITE</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="absolute top-6 right-6 text-white/50" onclick="handleLogout()"><i class="fa-solid fa-power-off"></i></button>
+            </div>
+            
+            <div class="p-6 space-y-8 flex-1 overflow-y-auto">
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-white/5 p-4 rounded-xl text-center">
+                        <p class="text-xl font-bold" id="profile-matches">0</p>
+                        <p class="text-[10px] text-gray-500 uppercase">Played</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl text-center">
+                        <p class="text-xl font-bold" id="profile-wins">0</p>
+                        <p class="text-[10px] text-gray-500 uppercase">Wins</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl text-center">
+                        <p class="text-xl font-bold" id="profile-earnings">₹0</p>
+                        <p class="text-[10px] text-gray-500 uppercase">Earned</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-gray-400 uppercase text-xs mb-4 tracking-widest">Free Fire Identity</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+                            <span class="text-gray-400">In-Game Name</span>
+                            <span class="font-bold" id="profile-ff-name">Not Linked</span>
+                        </div>
+                        <div class="flex justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+                            <span class="text-gray-400">Game UID</span>
+                            <span class="font-bold" id="profile-ff-uid">0000000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-white/10 space-y-4">
+                    <button class="w-full text-left p-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-share-nodes mr-3 text-[#FF6B00]"></i> Invite Friends</span>
+                        <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                    </button>
+                    <button class="w-full text-left p-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-headset mr-3 text-[#FF6B00]"></i> Support & FAQ</span>
+                        <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                    </button>
+                    <div class="flex justify-center gap-6 py-4 opacity-50">
+                        <i class="fa-brands fa-youtube"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                        <i class="fa-brands fa-telegram"></i>
+                        <i class="fa-brands fa-discord"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MATCH JOIN MODAL (DYNAMIC) -->
+        <div id="join-match-overlay" class="fixed inset-0 bg-black/90 z-[5000] hidden flex-col">
+            <header class="p-6 flex justify-between items-center border-b border-white/10">
+                <h2 class="text-xl font-bold">Join Tournament</h2>
+                <button onclick="closeJoinModal()" class="text-2xl">&times;</button>
+            </header>
+            <div class="p-6 flex-1 overflow-y-auto" id="join-form-content">
+                <!-- Form fields injected here -->
+            </div>
+            <div class="p-6 border-t border-white/10 bg-black/50">
+                <div class="flex justify-between mb-4">
+                    <span class="text-gray-400">Entry Fee</span>
+                    <span class="font-bold text-[#FF6B00]" id="modal-entry-fee">₹0</span>
+                </div>
+                <button id="confirm-join-btn" class="btn-primary w-full py-4">Pay & Join Match</button>
+            </div>
+        </div>
+
+        <!-- SEARCH / ADD FRIEND MODAL -->
+        <div id="search-modal" class="fixed inset-0 bg-black/90 z-[6000] hidden flex-col p-6">
+            <div class="flex items-center mb-6">
+                <button onclick="closeSearchModal()" class="mr-4 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="flex-1 input-group py-2">
+                    <input type="number" id="player-search-input" placeholder="Enter 10-digit UID">
+                </div>
+                <button onclick="searchPlayer()" class="ml-3 text-[#FF6B00] font-bold">SEARCH</button>
+            </div>
+            <div id="search-results" class="space-y-4">
+                <!-- Search results injected here -->
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottom-nav" id="main-nav">
+            <div class="nav-item active" onclick="showScreen('screen-home')">
+                <i class="fa-solid fa-house-chimney"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="showScreen('screen-tournaments')">
+                <i class="fa-solid fa-gamepad"></i>
+                <span>Matches</span>
+            </div>
+            <div class="nav-item" onclick="showScreen('screen-chats')">
+                <i class="fa-solid fa-comment-dots"></i>
+                <span>Chat</span>
+            </div>
+            <div class="nav-item" onclick="showScreen('screen-wallet')">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Wallet</span>
+            </div>
+            <div class="nav-item" onclick="showScreen('screen-profile')">
+                <i class="fa-solid fa-user-ninja"></i>
+                <span>Profile</span>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, onSnapshot, addDoc, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global State & Config
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'elitestar-v1';
+
+        let currentUser = null;
+        let userData = null;
+        let tempRegData = null; // Store data during OTP verification
+
+        // --- Core Application Functions ---
+
+        window.onload = () => {
+            // Check for Auth state
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await fetchUserData();
+                    showScreen('screen-home');
+                    initRealtimeListeners();
+                } else {
+                    showScreen('screen-welcome');
+                }
+                document.getElementById('loader').style.display = 'none';
+            });
+            
+            // Generate dummy matches for demo
+            seedDemoData();
         };
 
-        const NavBtn = ({ active, icon, label, onClick }) => (
-            <button onClick={onClick} className={`flex flex-col items-center gap-1 p-2.5 px-4 rounded-2xl transition-all ${active ? 'bg-[#FF6B00]/10 text-[#FF6B00]' : 'text-gray-500'}`}>
-                <Icon name={icon} size={22} className={active ? 'neon-glow' : ''} />
-                <span className="text-[8px] font-black uppercase tracking-widest">{label}</span>
-            </button>
-        );
+        async function fetchUserData() {
+            if(!currentUser) return;
+            const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'));
+            if(userDoc.exists()) {
+                userData = userDoc.data();
+                updateUIWithUserData();
+            }
+        }
 
-        // --- AUTH VIEW (Login/Register) ---
-        const AuthView = ({ db, auth, appId }) => {
-            const [isRegister, setIsRegister] = useState(false);
-            const [email, setEmail] = useState('');
-            const [pass, setPass] = useState('');
-            const [userN, setUserN] = useState('');
+        function updateUIWithUserData() {
+            document.getElementById('header-username').innerText = userData.username;
+            document.getElementById('header-balance').innerText = `₹${userData.wallet?.balance?.toFixed(2) || '0.00'}`;
+            document.getElementById('profile-name').innerText = userData.username;
+            document.getElementById('profile-uid').innerText = `UID: ${userData.elitestarUid}`;
+            document.getElementById('profile-balance')?.innerText && (document.getElementById('profile-balance').innerText = `₹${userData.wallet?.balance?.toFixed(2)}`);
+            document.getElementById('wallet-balance').innerText = `₹${userData.wallet?.balance?.toFixed(2) || '0.00'}`;
+            document.getElementById('profile-matches').innerText = userData.stats?.matchesPlayed || 0;
+            document.getElementById('profile-wins').innerText = userData.stats?.totalWins || 0;
+            document.getElementById('profile-earnings').innerText = `₹${userData.stats?.totalEarnings || 0}`;
+            
+            // Display FF details if any
+            if(userData.freeFire) {
+                document.getElementById('profile-ff-name').innerText = userData.freeFire.name || 'Set in profile';
+                document.getElementById('profile-ff-uid').innerText = userData.freeFire.uid || 'Set in profile';
+            }
+        }
 
-            const handleAuth = async () => {
-                try {
-                    if (isRegister) {
-                        const res = await auth.createUserWithEmailAndPassword(email, pass);
-                        await db.collection('artifacts').doc(appId).collection('users').doc(res.user.uid).collection('profile').doc('data').set({
-                            uid: res.user.uid, username: userN, starId: "STAR-"+Math.floor(1000+Math.random()*8000), balance: 100, role: 'user', wins: 0, ffId: ''
-                        });
-                        alert("Account Created!");
-                    } else {
-                        await auth.signInWithEmailAndPassword(email, pass);
+        function initRealtimeListeners() {
+            // Listen to wallet changes
+            onSnapshot(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), (doc) => {
+                if(doc.exists()) {
+                    userData = doc.data();
+                    updateUIWithUserData();
+                }
+            });
+
+            // Listen to matches
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'tournaments'), (snapshot) => {
+                const matches = [];
+                snapshot.forEach(doc => matches.push({id: doc.id, ...doc.data()}));
+                renderTournaments(matches);
+            });
+        }
+
+        // --- View Controller ---
+        window.showScreen = (screenId) => {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            // Hide/Show Bottom Nav based on screen
+            const authScreens = ['screen-welcome', 'screen-login', 'screen-register', 'screen-otp', 'screen-forgot'];
+            const nav = document.getElementById('main-nav');
+            if (authScreens.includes(screenId)) {
+                nav.style.display = 'none';
+            } else {
+                nav.style.display = 'flex';
+                // Update active nav item
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                    if(item.innerText.toLowerCase() === screenId.split('-')[1]) {
+                        item.classList.add('active');
                     }
-                } catch(e) { alert(e.message); }
-            };
-
-            return (
-                <div className="min-h-screen p-6 flex flex-col justify-center items-center animate-in zoom-in-95 duration-700">
-                    <div className="w-full max-w-sm p-10 glass-3d border-[#FF6B00]/20 border-2 space-y-8 shadow-[0_0_80px_rgba(255,107,0,0.1)]">
-                        <div className="text-center space-y-2">
-                            <Icon name="Lock" size={48} className="text-[#FF6B00] mx-auto mb-4 neon-glow" />
-                            <h2 className="text-3xl font-gaming italic text-white leading-none">Access Console</h2>
-                            <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{isRegister ? 'New Pilot Registration' : 'Commander Login Required'}</p>
-                        </div>
-                        <div className="space-y-4">
-                            {isRegister && <div className="space-y-1"><Icon name="User" size={12} className="text-gray-600 mb-1" /><input value={userN} onChange={e=>setUserN(e.target.value)} className="w-full p-4 text-sm font-bold uppercase" placeholder="CHOOSE USERNAME" /></div>}
-                            <div className="space-y-1"><Icon name="Mail" size={12} className="text-gray-600 mb-1" /><input value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-4 text-sm font-bold uppercase" placeholder="EMAIL IDENTITY" /></div>
-                            <div className="space-y-1"><Icon name="Lock" size={12} className="text-gray-600 mb-1" /><input type="password" value={pass} onChange={e=>setPass(e.target.value)} className="w-full p-4 text-sm font-bold uppercase" placeholder="SECURITY CODE" /></div>
-                        </div>
-                        <button onClick={handleAuth} className="w-full btn-premium p-5 uppercase tracking-widest text-xs">{isRegister ? 'INITIALIZE SYSTEM' : 'AUTHORIZE ACCESS'}</button>
-                        <p onClick={()=>setIsRegister(!isRegister)} className="text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest hover:text-[#FF6B00] transition-all cursor-pointer">{isRegister ? 'Already have access? LOGIN' : 'New Commander? REGISTER HERE'}</p>
-                    </div>
-                </div>
-            );
+                });
+            }
         };
 
-        // --- SUB VIEWS ---
-        const HomeView = ({ profile, matches, setView }) => (
-            <div className="space-y-8 animate-in slide-up">
-                <div className="glass-3d p-8 border-l-4 border-[#FF6B00] relative overflow-hidden">
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em] mb-2">Master Rank Account</p>
-                    <h2 className="text-3xl font-gaming italic text-white leading-tight">{profile?.username}</h2>
-                    <p className="text-[#FF6B00] text-sm font-black uppercase mt-2 tracking-widest">{profile?.starId}</p>
-                    <div className="mt-8 flex gap-6">
-                        <div className="flex-1 bg-white/5 p-4 rounded-2xl border border-white/5 shadow-inner">
-                            <span className="text-[9px] text-gray-500 uppercase font-black">Wins</span>
-                            <p className="text-xl font-black text-green-500 mt-1">{profile?.wins}</p>
-                        </div>
-                        <div className="flex-1 bg-white/5 p-4 rounded-2xl border border-white/5">
-                            <span className="text-[9px] text-gray-500 uppercase font-black">Rank</span>
-                            <p className="text-[10px] font-black text-[#FF6B00] uppercase mt-2">{profile?.role}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex justify-between items-center px-1"><h4 className="font-gaming text-sm italic border-l-2 border-[#FF6B00] pl-3 uppercase">Arena Missions</h4><button onClick={()=>setView('play')} className="text-[#FF6B00] font-black uppercase text-[10px]">ALL</button></div>
-                <div className="space-y-5">
-                    {matches.filter(m=>m.status==='open').slice(0,3).map(m=>(<div key={m.id} className="glass-3d p-5 flex gap-5 items-center btn-active border-white/5"><div className="w-14 h-14 bg-white/5 rounded-[20px] flex items-center justify-center font-gaming text-[#FF6B00] text-[10px] border border-white/10">{m.mode}</div><div className="flex-grow space-y-1"><h5 className="font-black text-md uppercase text-white">{m.title}</h5><p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Prize ₹{m.prize}</p><div className="mt-3 w-full h-1 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-[#FF6B00] to-orange-400" style={{width: `${(m.joined/m.maxPlayers)*100}%`}}></div></div></div><button onClick={()=>setView('play')} className="bg-[#FF6B00] text-black px-5 py-3 rounded-2xl text-[9px] font-black uppercase">JOIN</button></div>))}
-                </div>
-            </div>
-        );
+        // --- Registration Logic ---
+        window.handleRegistration = async () => {
+            const username = document.getElementById('reg-username').value;
+            const phone = document.getElementById('reg-phone').value;
+            const dob = document.getElementById('reg-dob').value;
+            const pass = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
 
-        const ArenaView = ({ matches, onJoin }) => (
-            <div className="space-y-6">
-                <h2 className="text-2xl font-gaming italic text-[#FF6B00] uppercase tracking-tighter text-center neon-text">Mission Board</h2>
-                {matches.map(m => (
-                    <div key={m.id} className="glass-3d p-6 border border-white/5 flex gap-6 items-center">
-                        <div className="w-16 h-16 bg-[#111] rounded-[2rem] border border-white/10 flex items-center justify-center font-gaming text-[#FF6B00] text-xs shadow-xl">{m.mode}</div>
-                        <div className="flex-grow space-y-2">
-                            <h5 className="font-black text-md uppercase text-white">{m.title}</h5>
-                            <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest">Entry ₹{m.entry} | ₹{m.prize} POOL</p>
-                            <div className="mt-3 w-full h-1.5 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-[#FF6B00] neon-shadow" style={{width: `${(m.joined/m.maxPlayers)*100}%`}}></div></div>
-                        </div>
-                        <button onClick={() => onJoin(m)} className="bg-[#FF6B00] text-black px-5 py-3 rounded-2xl text-[10px] font-black uppercase btn-active shadow-xl">JOIN</button>
-                    </div>
-                ))}
-            </div>
-        );
+            if(!username || !phone || !dob || !pass) {
+                return showModal("Error", "Please fill all fields.");
+            }
 
-        const ChatView = ({ profile, db, appId }) => {
-            const [ch, setCh] = useState('general');
-            const [ms, setMs] = useState([]);
-            const [inp, setInp] = useState('');
-            const endRef = useRef();
-            useEffect(() => {
-                const unsub = db.collection('artifacts').doc(appId).collection('public').doc('data').collection(`chats_${ch}`).orderBy('timestamp','desc').limit(40)
-                    .onSnapshot(s => { setMs(s.docs.map(d => d.data()).reverse()); setTimeout(()=>endRef.current?.scrollIntoView(), 100); });
-                return () => unsub();
-            }, [ch]);
-            const send = async () => { if(!inp.trim())return; await db.collection('artifacts').doc(appId).collection('public').doc('data').collection(`chats_${ch}`).add({ sender: profile.username, text: inp, timestamp: Date.now(), uid: profile.uid, role: profile.role }); setInp(''); };
-            return (
-                <div className="h-[75vh] flex flex-col glass-3d overflow-hidden border-[#FF6B00]/10">
-                    <div className="flex border-b border-white/5 p-2 bg-black/40">
-                        {['general','squads','news'].map(c => <button key={c} onClick={()=>setCh(c)} className={`flex-1 p-3 rounded-2xl text-[9px] font-black uppercase transition-all ${ch===c?'bg-[#FF6B00] text-black shadow-xl':'text-gray-500'}`}>#{c}</button>)}
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-5 space-y-6">
-                        {ms.map((m,i)=>(<div key={i} className={`flex flex-col ${m.uid===profile.uid?'items-end':'items-start'}`}><div className="flex items-center gap-2 mb-2 px-2">{m.role==='admin'&&<Icon name="Crown" size={12} className="text-yellow-500" />}<span className="text-[10px] text-gray-500 uppercase font-black">{m.sender}</span></div><div className={`p-3 px-5 rounded-[22px] text-[13px] leading-relaxed shadow-xl ${m.uid===profile.uid?'bg-[#FF6B00] text-black font-bold':'bg-white/5 border border-white/10'}`}>{m.text}</div></div>))}
-                        <div ref={endRef} />
-                    </div>
-                    <div className="p-4 bg-black/90 flex gap-3">
-                        <input value={inp} onChange={e=>setInp(e.target.value)} className="flex-grow p-4 rounded-2xl text-xs bg-white/5 border border-white/10 outline-none" placeholder="Type mission info..." />
-                        <button onClick={send} className="bg-[#FF6B00] p-4 rounded-2xl text-black btn-active"><Icon name="Send" size={24} /></button>
-                    </div>
-                </div>
-            );
+            // Age Check
+            const birthDate = new Date(dob);
+            const age = Math.floor((new Date() - birthDate) / 31557600000);
+            if(age < 16) {
+                return showModal("Access Denied", "You must be at least 16 years old to use this platform.");
+            }
+
+            if(pass !== confirm) {
+                return showModal("Error", "Passwords do not match.");
+            }
+
+            // Simulate OTP Send
+            tempRegData = { username, phone, dob, pass };
+            showModal("OTP Sent", "Simulation: OTP is 123456");
+            showScreen('screen-otp');
         };
 
-        const JoinModal = ({ match, profile, db, appId, close }) => {
-            const [ff, setFF] = useState('');
-            const join = async () => {
-                if(profile.balance < match.entry) return alert("Paisa low hai!");
-                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').doc(match.id).update({ joined: firebase.firestore.FieldValue.increment(1) });
-                await db.collection('artifacts').doc(appId).collection('users').doc(profile.uid).collection('profile').doc('data').update({ balance: firebase.firestore.FieldValue.increment(-match.entry) });
-                alert("Deployed!"); close();
-            };
-            return (
-                <div className="fixed inset-0 z-[2000] bg-black/95 p-6 flex items-center justify-center backdrop-blur-xl">
-                    <div className="p-10 glass-3d border border-white/10 w-full max-w-sm space-y-8 animate-in zoom-in-95">
-                        <h3 className="text-2xl font-gaming italic text-[#FF6B00] uppercase text-center leading-none">Arena Entry</h3>
-                        <div className="space-y-5">
-                            <input value={ff} onChange={e=>setFF(e.target.value)} className="w-full p-5 rounded-2xl text-md bg-black border border-white/10 uppercase font-black" placeholder="FREE FIRE UID" />
-                        </div>
-                        <div className="p-5 bg-[#FF6B00]/10 rounded-[2rem] flex justify-between items-center border border-[#FF6B00]/20"><span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Entry Fee</span><span className="text-xl font-black text-[#FF6B00]">₹{match.entry}</span></div>
-                        <button onClick={join} className="w-full bg-[#FF6B00] text-black p-6 rounded-[2rem] font-black uppercase text-sm btn-active shadow-2xl">CONFIRM & PAY</button>
-                        <button onClick={close} className="w-full text-xs text-gray-600 uppercase font-black tracking-widest">Cancel</button>
-                    </div>
-                </div>
-            );
+        window.verifyOTP = async () => {
+            const inputs = document.querySelectorAll('#otp-inputs input');
+            let code = "";
+            inputs.forEach(i => code += i.value);
+
+            if(code === "123456") {
+                try {
+                    document.getElementById('loader').style.display = 'flex';
+                    // Use a mock email for Firebase Auth since we are using phone
+                    const email = `${tempRegData.phone}@elitestar.com`;
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, tempRegData.pass);
+                    
+                    // Generate Unique 10 Digit UID
+                    const elitestarUid = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+
+                    // Create User Profile in Firestore
+                    const initialProfile = {
+                        username: tempRegData.username,
+                        phone: tempRegData.phone,
+                        dob: tempRegData.dob,
+                        elitestarUid: elitestarUid,
+                        joinDate: serverTimestamp(),
+                        wallet: {
+                            balance: 10, // Signup Bonus
+                            totalDeposited: 0,
+                            totalWithdrawn: 0
+                        },
+                        stats: {
+                            matchesPlayed: 0,
+                            totalWins: 0,
+                            totalEarnings: 0
+                        },
+                        freeFire: {
+                            uid: "",
+                            name: "",
+                            level: 0
+                        }
+                    };
+
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userCredential.user.uid, 'profile', 'data'), initialProfile);
+                    
+                    // Record Signup Bonus Transaction
+                    await addDoc(collection(db, 'artifacts', appId, 'users', userCredential.user.uid, 'transactions'), {
+                        type: 'BONUS',
+                        amount: 10,
+                        description: 'Signup Reward',
+                        timestamp: serverTimestamp()
+                    });
+
+                    showModal("Welcome!", "Account created successfully with ₹10 Bonus!");
+                    // Auth observer will take them to Home
+                } catch (error) {
+                    showModal("Registration Error", error.message);
+                } finally {
+                    document.getElementById('loader').style.display = 'none';
+                }
+            } else {
+                showModal("Invalid Code", "Please check the OTP and try again.");
+            }
         };
 
-        const SquadView = () => (
-            <div className="p-16 text-center glass-3d border-dashed border-2 border-white/10 relative overflow-hidden">
-                <Icon name="Users" size={70} className="mx-auto text-[#FF6B00] mb-6 neon-glow" />
-                <h3 className="text-2xl font-gaming italic uppercase tracking-widest text-white leading-none">Elite Squads</h3>
-                <p className="text-xs text-gray-500 uppercase mt-4 tracking-widest font-bold">Create team for auto-fill entry</p>
-                <div className="mt-12 space-y-4">
-                    <button className="w-full bg-[#FF6B00] text-black p-5 rounded-[2rem] font-black uppercase text-xs tracking-widest btn-active">CREATE NEW SQUAD</button>
-                </div>
-            </div>
-        );
+        window.handleLogin = async () => {
+            const phone = document.getElementById('login-phone').value;
+            const pass = document.getElementById('login-password').value;
+            
+            if(!phone || !pass) return showModal("Error", "Fill all credentials.");
 
-        const WalletView = ({ profile, onDep }) => {
-            const [amt, setAmt] = useState('');
-            return (
-                <div className="space-y-10">
-                    <div className="p-16 text-center glass-3d border-2 border-[#FF6B00]/20 relative overflow-hidden shadow-[0_0_80px_rgba(255,107,0,0.15)]">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-[#FF6B00]"></div>
-                        <p className="text-[11px] text-gray-500 font-bold uppercase mb-4 tracking-[0.4em]">Combat Balance</p>
-                        <h2 className="text-8xl font-gaming italic text-[#FF6B00] leading-none">₹{profile?.balance}</h2>
-                    </div>
-                    <div className="glass-3d p-10 space-y-8 border-white/10">
-                        <input value={amt} onChange={e=>setAmt(e.target.value)} type="number" className="w-full p-8 bg-transparent border-b-2 border-white/10 text-center text-6xl font-black outline-none focus:border-[#FF6B00]" placeholder="₹ 0" />
-                        <button onClick={()=>onDep(amt)} className="w-full bg-[#FF6B00] text-black p-8 rounded-[3rem] font-black uppercase text-xs tracking-widest btn-active shadow-2xl">ADD CASH (RAZORPAY)</button>
-                    </div>
-                </div>
-            );
+            try {
+                document.getElementById('loader').style.display = 'flex';
+                const email = `${phone}@elitestar.com`;
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (error) {
+                showModal("Login Failed", "Invalid phone number or password.");
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+            }
         };
 
-        const AdminPanel = ({ matches, db, appId }) => (
-            <div className="space-y-8 animate-in zoom-in">
-                <h2 className="text-2xl font-gaming italic text-[#FF6B00] uppercase text-center neon-text">Admin Console</h2>
-                <div className="p-10 glass-3d space-y-8 border-[#FF6B00]/20 border">
-                    <button onClick={async()=>{ 
-                        await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').add({ title: "MEGASHOT SOLO", prize: 1000, entry: 50, mode: 'Solo', joined: 0, maxPlayers: 48, status: 'open', createdAt: Date.now() });
-                        alert("Tournament Live!");
-                    }} className="w-full bg-[#FF6B00] text-black p-6 rounded-[2rem] font-black uppercase text-sm btn-active shadow-2xl">DEPLOY NEW MATCH</button>
-                </div>
-            </div>
-        );
-
-        const StaffPanel = ({ matches, db, appId }) => (
-            <div className="space-y-6">
-                <h2 className="text-2xl font-gaming italic text-red-500 uppercase text-center">Ops Monitor</h2>
-                {matches.filter(m=>m.status==='open').map(m => (
-                    <div key={m.id} className="p-8 glass-3d border-l-4 border-l-red-500 space-y-6">
-                        <h4 className="font-black text-xl uppercase text-white">{m.title}</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                            <input id={`r-${m.id}`} className="p-4 bg-black rounded-2xl text-xs uppercase font-black" placeholder="ROOM ID" defaultValue={m.roomId} />
-                            <input id={`p-${m.id}`} className="p-4 bg-black rounded-2xl text-xs uppercase font-black" placeholder="PASSWORD" defaultValue={m.roomPass} />
-                        </div>
-                        <div className="flex gap-4">
-                            <button onClick={async ()=> { 
-                                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').doc(m.id).update({ roomId: document.getElementById(`r-${m.id}`).value, roomPass: document.getElementById(`p-${m.id}`).value });
-                                alert("Link Updated!");
-                            }} className="flex-1 bg-white/10 p-5 rounded-2xl text-[10px] font-black uppercase btn-active">UPDATE</button>
-                            <button onClick={async ()=> { 
-                                if(!confirm("Cancel Match?"))return;
-                                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').doc(m.id).update({ status: 'cancelled' });
-                                alert("Terminated!");
-                            }} className="bg-red-500/20 text-red-500 p-5 rounded-2xl text-[10px] font-black uppercase border border-red-500/20 btn-active">HACKER ABORT</button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-
-        const ProfileView = ({ profile, auth }) => (
-            <div className="space-y-12 text-center pt-12 animate-in zoom-in-95 duration-500">
-                <div className="relative inline-block">
-                    <div className="w-40 h-40 bg-gradient-to-tr from-[#FF6B00] to-orange-300 rounded-[55px] p-1 rotate-[12deg] mx-auto shadow-2xl">
-                        <div className="w-full h-full bg-black rounded-[52px] flex items-center justify-center -rotate-[12deg]">
-                            <Icon name="Zap" size={70} className="text-[#FF6B00] neon-glow" />
-                        </div>
-                    </div>
-                </div>
-                <h2 className="text-5xl font-gaming italic tracking-tighter leading-none text-white">{profile?.username}</h2>
-                <div className="text-left glass-3d divide-y divide-white/5 overflow-hidden shadow-2xl">
-                    <div className="p-8 flex justify-between items-center hover:bg-white/5 transition-all"><span className="text-[12px] text-gray-500 font-black tracking-widest uppercase">STAR UID</span><span className="font-black text-lg text-white">{profile?.starId}</span></div>
-                    <div className="p-8 flex justify-between items-center hover:bg-white/5 transition-all"><span className="text-[12px] text-gray-500 font-black tracking-widest uppercase">Combat Rank</span><span className="font-black text-[#FF6B00] uppercase text-[12px] tracking-widest">{profile?.role}</span></div>
-                </div>
-                <button onClick={()=>auth.signOut()} className="w-full glass-3d p-8 text-red-500 font-black text-sm uppercase tracking-[0.5em] border-red-500/10 btn-active">SIGN OUT DEVICE</button>
-            </div>
-        );
-
-        const EliteBot = ({ close, onAsk }) => {
-            const [ms, setMs] = useState([{ b: true, t: "Salute Commander Mahesh! Main ELITE Assistant hoon. Kya help chahiye?" }]);
-            const [v, setV] = useState('');
-            const [l, setL] = useState(false);
-            const ask = async () => { if(!v.trim() || l) return; const ut=v; setV(''); setMs(p=>[...p,{b:false,t:ut}]); setL(true); const r = await onAsk(ut); setMs(p=>[...p,{b:true,t:r}]); setL(false); };
-            return (
-                <div className="absolute bottom-20 right-0 w-80 h-[500px] glass-3d !bg-black/95 border-2 border-[#FF6B00]/40 flex flex-col z-[3000] shadow-[0_20px_80px_rgba(0,0,0,1)] overflow-hidden animate-in slide-in-from-bottom-6">
-                    <div className="p-6 bg-[#FF6B00] text-black font-black flex justify-between items-center text-[12px] uppercase">
-                        <div className="flex items-center gap-4"><Icon name="Bot" size={24} /> <span>Elite Intel</span></div>
-                        <Icon name="X" size={24} className="cursor-pointer" onClick={close} />
-                    </div>
-                    <div className="flex-1 p-5 overflow-y-auto space-y-6 text-[14px] leading-relaxed">
-                        {ms.map((m,idx)=>(<div key={idx} className={`p-4 rounded-[2rem] shadow-2xl ${m.b?'bg-white/5 self-start mr-10 border border-white/5 shadow-inner':'bg-[#FF6B00] text-black font-bold self-end ml-10'}`}>{m.t}</div>))}
-                        {l && <div className="text-[10px] text-[#FF6B00] animate-pulse uppercase font-black px-4 tracking-[0.4em]">Decoding Logic...</div>}
-                    </div>
-                    <div className="p-5 bg-black border-t border-white/10 flex gap-4">
-                        <input value={v} onChange={e=>setV(e.target.value)} onKeyPress={e=>e.key==='Enter'&&ask()} className="flex-grow p-5 rounded-2xl text-xs bg-white/5 outline-none focus:border-[#FF6B00] border border-white/10 uppercase" placeholder="Enter Command..." />
-                        <button onClick={ask} className="bg-[#FF6B00] p-4 rounded-2xl text-black btn-active shadow-orange-500/20 shadow-lg"><Icon name="Zap" size={24} /></button>
-                    </div>
-                </div>
-            );
+        window.handleLogout = async () => {
+            await signOut(auth);
+            currentUser = null;
+            userData = null;
+            showScreen('screen-welcome');
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // --- Tournament Logic ---
+        function renderTournaments(matches) {
+            const list = document.getElementById('tournament-list');
+            const homeList = document.getElementById('home-featured-matches');
+            list.innerHTML = "";
+            homeList.innerHTML = "";
+
+            matches.forEach(m => {
+                const cardHtml = `
+                    <div class="tournament-card">
+                        <div class="card-header" style="background-image: url('${m.image || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600'}')">
+                            <div class="mode-badge">${m.mode}</div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-lg">${m.title}</h3>
+                                <div class="text-[#FF6B00] font-bold">₹${m.entryFee}</div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 mb-4">
+                                <div class="text-center bg-white/5 p-2 rounded-lg">
+                                    <p class="text-[10px] text-gray-500 uppercase">Prize</p>
+                                    <p class="text-xs font-bold">₹${m.prize}</p>
+                                </div>
+                                <div class="text-center bg-white/5 p-2 rounded-lg">
+                                    <p class="text-[10px] text-gray-500 uppercase">Map</p>
+                                    <p class="text-xs font-bold">${m.map}</p>
+                                </div>
+                                <div class="text-center bg-white/5 p-2 rounded-lg">
+                                    <p class="text-[10px] text-gray-500 uppercase">Spots</p>
+                                    <p class="text-xs font-bold">${m.joined || 0}/${m.capacity}</p>
+                                </div>
+                            </div>
+                            <button onclick="openJoinModal('${m.id}', '${m.mode}', ${m.entryFee})" class="btn-primary w-full py-2 text-xs">Join Now</button>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', cardHtml);
+                
+                // Add to featured if under certain limit
+                if(homeList.children.length < 3) {
+                    homeList.insertAdjacentHTML('beforeend', cardHtml);
+                }
+            });
+        }
+
+        window.openJoinModal = (matchId, mode, fee) => {
+            if(userData.wallet.balance < fee) {
+                return showModal("Insufficient Funds", "Please add money to your wallet to join this match.");
+            }
+
+            const overlay = document.getElementById('join-match-overlay');
+            const form = document.getElementById('join-form-content');
+            document.getElementById('modal-entry-fee').innerText = `₹${fee}`;
+            
+            let html = `
+                <div class="space-y-4">
+                    <p class="text-xs text-orange-400 mb-4 italic">* Ensure your Game Name is correct to avoid ban.</p>
+                    <div class="input-group">
+                        <label class="text-xs text-gray-500">Your Free Fire UID</label>
+                        <input type="text" id="join-p1-uid" placeholder="Example: 512398451" value="${userData.freeFire?.uid || ''}">
+                    </div>
+                    <div class="input-group">
+                        <label class="text-xs text-gray-500">Your Free Fire Name</label>
+                        <input type="text" id="join-p1-name" placeholder="In-Game Name" value="${userData.freeFire?.name || ''}">
+                    </div>
+            `;
+
+            if(mode === 'SQUAD') {
+                for(let i=2; i<=4; i++) {
+                    html += `
+                        <div class="input-group mt-4">
+                            <label class="text-xs text-gray-500">Teammate ${i} Name</label>
+                            <input type="text" id="join-p${i}-name" placeholder="Teammate ${i} IGN">
+                        </div>
+                    `;
+                }
+            } else if(mode === 'DUO') {
+                html += `
+                    <div class="input-group mt-4">
+                        <label class="text-xs text-gray-500">Teammate 2 Name</label>
+                        <input type="text" id="join-p2-name" placeholder="Teammate 2 IGN">
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            form.innerHTML = html;
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            document.getElementById('confirm-join-btn').onclick = () => submitJoin(matchId, fee, mode);
+        };
+
+        window.closeJoinModal = () => {
+            document.getElementById('join-match-overlay').classList.add('hidden');
+        };
+
+        async function submitJoin(matchId, fee, mode) {
+            const p1uid = document.getElementById('join-p1-uid').value;
+            const p1name = document.getElementById('join-p1-name').value;
+
+            if(!p1uid || !p1name) return showModal("Required", "Please enter your Free Fire details.");
+
+            try {
+                document.getElementById('loader').style.display = 'flex';
+                
+                // Firestore Transaction to deduct money and add player
+                await runTransaction(db, async (transaction) => {
+                    const profileRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data');
+                    const profile = await transaction.get(profileRef);
+                    const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'tournaments', matchId);
+                    const match = await transaction.get(matchRef);
+
+                    if (!profile.exists()) throw "User profile not found";
+                    if (profile.data().wallet.balance < fee) throw "Insufficient funds";
+                    if (match.data().joined >= match.data().capacity) throw "Tournament full";
+
+                    // Deduct wallet
+                    transaction.update(profileRef, {
+                        'wallet.balance': profile.data().wallet.balance - fee,
+                        'stats.matchesPlayed': profile.data().stats.matchesPlayed + 1
+                    });
+
+                    // Add registration record
+                    const regRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'));
+                    transaction.set(regRef, {
+                        userId: currentUser.uid,
+                        username: userData.username,
+                        matchId: matchId,
+                        mode: mode,
+                        fee: fee,
+                        ffDetails: { uid: p1uid, name: p1name },
+                        timestamp: serverTimestamp()
+                    });
+
+                    // Update match joined count
+                    transaction.update(matchRef, {
+                        joined: (match.data().joined || 0) + 1
+                    });
+                });
+
+                closeJoinModal();
+                showModal("Joined!", "Registration successful. Match details will be sent via SMS/App 15 mins before start.");
+            } catch (e) {
+                showModal("Error", e.toString());
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        // --- Search System ---
+        window.openSearchModal = () => {
+            document.getElementById('search-modal').classList.remove('hidden');
+            document.getElementById('search-modal').classList.add('flex');
+        };
+
+        window.closeSearchModal = () => {
+            document.getElementById('search-modal').classList.add('hidden');
+        };
+
+        window.searchPlayer = async () => {
+            const uid = document.getElementById('player-search-input').value;
+            if(!uid || uid.length !== 10) return showModal("Error", "Enter valid 10-digit UID.");
+
+            const resList = document.getElementById('search-results');
+            resList.innerHTML = `<p class="text-center py-4">Searching...</p>`;
+
+            try {
+                // IMPORTANT: Since we can't do complex queries easily, we are searching within the public artifact path
+                // For a real app, you'd index these UIDs. Here we search within users.
+                // NOTE: Using a simple approach for this architecture
+                const q = query(collection(db, 'artifacts', appId, 'users'), where('elitestarUid', '==', uid));
+                // We'll simulate a find for this demo
+                resList.innerHTML = `
+                    <div class="glass-panel p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-orange-500 rounded-lg"></div>
+                            <div>
+                                <p class="font-bold">Pro_Gamer_99</p>
+                                <p class="text-xs text-gray-500">Elite Rank</p>
+                            </div>
+                        </div>
+                        <button class="btn-primary py-2 px-4 text-xs">Follow</button>
+                    </div>
+                `;
+            } catch(e) {
+                resList.innerHTML = `<p class="text-center text-red-500">Player not found.</p>`;
+            }
+        };
+
+        // --- Helper Functions ---
+        window.showModal = (title, text) => {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('modal-overlay').style.display = 'flex';
+        };
+
+        window.closeModal = () => {
+            document.getElementById('modal-overlay').style.display = 'none';
+        };
+
+        async function seedDemoData() {
+            // Check if tournaments exist, if not, create some
+            const tCollection = collection(db, 'artifacts', appId, 'public', 'data', 'tournaments');
+            // This is just to ensure the UI looks full for the user instantly
+            const demoMatches = [
+                { title: "Bermuda Rush (Solo)", mode: "SOLO", map: "Bermuda", entryFee: 10, prize: 450, capacity: 48, joined: 12, image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600' },
+                { title: "Squad Conquest", mode: "SQUAD", map: "Purgatory", entryFee: 40, prize: 2000, capacity: 12, joined: 4, image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600' },
+                { title: "1v1 Desert Eagle King", mode: "1v1", map: "Lone Wolf", entryFee: 20, prize: 35, capacity: 2, joined: 1, image: 'https://images.unsplash.com/photo-1533134486753-c833f074868f?q=80&w=600' }
+            ];
+
+            // Only seed if empty (simple check)
+            const snap = await getDoc(doc(tCollection, 'init-check'));
+            if(!snap.exists()) {
+                for(let m of demoMatches) {
+                    await addDoc(tCollection, m);
+                }
+                await setDoc(doc(tCollection, 'init-check'), {seeded: true});
+            }
+        }
+
     </script>
 </body>
 </html>
