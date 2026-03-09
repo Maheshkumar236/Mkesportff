@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ELITESTAR | Ultimate Esports Terminal</title>
+    <title>ELITESTAR | Professional Gaming Terminal</title>
     
-    <!-- Scripts & Icons -->
+    <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,17 +15,17 @@
 
         :root {
             --neon-orange: #FF6B00;
-            --dark-charcoal: #080808;
-            --surface: #121212;
-            --surface-light: #1A1A1A;
-            --neon-glow: 0 0 25px rgba(255, 107, 0, 0.4);
-            --3d-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 2px 2px rgba(255,255,255,0.05);
+            --dark-charcoal: #050505;
+            --surface: #0F0F0F;
+            --surface-light: #181818;
+            --neon-glow: 0 0 25px rgba(255, 107, 0, 0.5);
+            --3d-shadow: 0 20px 40px rgba(0,0,0,0.9), inset 0 1px 2px rgba(255,255,255,0.05);
         }
 
         body {
             background: var(--dark-charcoal);
             background-image: 
-                radial-gradient(circle at 50% 0%, #1e1100 0%, #080808 100%),
+                radial-gradient(circle at 50% 0%, #201200 0%, #050505 100%),
                 url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
             color: #ffffff;
             font-family: 'Rajdhani', sans-serif;
@@ -38,360 +38,267 @@
 
         .gaming-font { font-family: 'Orbitron', sans-serif; }
 
-        /* 3D Glassmorphism & UI Design */
+        /* Professional 3D Components */
         .glass-card {
-            background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(10,10,10,1) 100%);
+            background: linear-gradient(145deg, rgba(25,25,25,0.98) 0%, rgba(5,5,5,1) 100%);
             border: 1px solid rgba(255, 107, 0, 0.2);
-            border-radius: 28px;
+            border-radius: 30px;
             box-shadow: var(--3d-shadow);
             position: relative;
-            overflow: hidden;
         }
 
         .btn-elite {
             background: linear-gradient(135deg, #FF6B00 0%, #FF3D00 100%);
             border-bottom: 5px solid #993D00;
             text-transform: uppercase;
-            font-weight: 800;
+            font-weight: 900;
             color: white;
-            border-radius: 16px;
-            transition: all 0.1s ease;
+            border-radius: 18px;
+            transition: 0.1s;
             box-shadow: var(--neon-glow);
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
         }
         .btn-elite:active { transform: translateY(4px); border-bottom-width: 0; }
 
         .input-elite {
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             border: 2px solid #222;
-            padding: 16px 20px;
-            border-radius: 16px;
+            padding: 18px 24px;
+            border-radius: 20px;
             color: white;
             width: 100%;
             outline: none;
-            transition: 0.3s;
+            transition: 0.4s;
             font-size: 16px;
         }
-        .input-elite:focus { border-color: var(--neon-orange); box-shadow: 0 0 20px rgba(255,107,0,0.15); }
+        .input-elite:focus { border-color: var(--neon-orange); box-shadow: 0 0 25px rgba(255,107,0,0.2); }
 
+        /* Navigation */
         .view-section { display: none; height: 100%; overflow-y: auto; padding-bottom: 120px; }
-        .view-section.active { display: block; animation: viewIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        @keyframes viewIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        .view-section.active { display: block; animation: viewSlideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @keyframes viewSlideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Tournament Cards */
-        .t-card {
-            background: #111;
-            border-radius: 24px;
-            border-left: 8px solid var(--neon-orange);
-            margin-bottom: 24px;
-            padding: 24px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            position: relative;
-        }
+        .nav-item { color: #444; transition: 0.3s; }
+        .nav-item.active { color: var(--neon-orange); text-shadow: var(--neon-glow); transform: scale(1.1); }
 
-        .nav-active { color: var(--neon-orange); text-shadow: var(--neon-glow); transform: scale(1.15); }
-
-        /* Social Auth Buttons */
-        .btn-social {
-            padding: 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.05);
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-        .btn-social:active { background: rgba(255,255,255,0.15); }
-
-        /* Master Loader */
+        /* Loader */
         #master-loader {
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .loader-bar { width: 220px; height: 4px; background: #111; border-radius: 10px; overflow: hidden; margin-top: 25px; }
-        .loader-fill { height: 100%; background: var(--neon-orange); animation: load 2s infinite; }
-        @keyframes load { 0% { width: 0%; } 100% { width: 100%; } }
+        .loader-ring { width: 70px; height: 70px; border: 5px solid #111; border-top: 5px solid var(--neon-orange); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Chat Styles */
-        .bubble { max-width: 80%; padding: 14px 18px; border-radius: 22px; margin-bottom: 12px; font-size: 14px; }
-        .sent { background: var(--neon-orange); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .received { background: #222; color: white; align-self: flex-start; border-bottom-left-radius: 4px; }
+        /* Overrides Modal */
+        #override-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999;
+            display: none; align-items: center; justify-content: center; padding: 25px;
+        }
 
-        ::-webkit-scrollbar { display: none; }
+        ::-webkit-scrollbar { width: 0; display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Master Loader -->
+    <!-- Global Loader -->
     <div id="master-loader">
         <h1 class="gaming-font text-5xl font-black italic text-white tracking-tighter">ELITE<span style="color:#FF6B00">STAR</span></h1>
-        <div class="loader-bar"><div class="loader-fill"></div></div>
-        <p class="text-[10px] uppercase font-bold tracking-[0.5em] text-zinc-600 mt-5">Syncing Combat Protocol...</p>
+        <div class="loader-ring mt-8"></div>
+        <p class="text-[10px] uppercase font-bold tracking-[0.6em] text-zinc-700 mt-6">Secure Boot Sequence Active...</p>
+    </div>
+
+    <!-- SECRET OVERRIDE MODAL (20 Taps Secret) -->
+    <div id="override-modal">
+        <div class="glass-card w-full max-w-sm p-10 text-center animate-view border-red-600/30">
+            <div class="w-20 h-20 bg-red-600/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-red-600/30">
+                <i class="fa-solid fa-terminal text-3xl text-red-600"></i>
+            </div>
+            <h2 class="gaming-font text-2xl font-black italic mb-2 text-white">SYSTEM OVERRIDE</h2>
+            <p class="text-zinc-500 text-sm mb-10">Enter authorization key to unlock high-level terminal functions.</p>
+            <input type="password" id="override-key" placeholder="••••" class="input-elite text-center text-3xl tracking-[1em] mb-10">
+            <button onclick="executeOverride()" class="btn-elite w-full py-5 text-sm bg-none" style="background: linear-gradient(135deg, #cc0000, #ff0000)">Unlock Terminal</button>
+            <p onclick="closeOverride()" class="mt-8 text-[10px] font-black text-zinc-600 uppercase cursor-pointer hover:text-white">Abort Access</p>
+        </div>
     </div>
 
     <!-- AUTHENTICATION SCREEN -->
-    <div id="auth-screen" class="h-full flex flex-col p-8 overflow-y-auto">
-        <div class="text-center mt-10 mb-14">
+    <div id="auth-screen" class="h-full flex flex-col p-10 overflow-y-auto">
+        <div class="text-center mt-12 mb-16">
             <h1 class="gaming-font text-6xl font-black italic tracking-tighter text-white">ELITE<span style="color:#FF6B00">STAR</span></h1>
-            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.5em] mt-3">Professional Esports Terminal</p>
+            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.5em] mt-4">Professional Esports Terminal</p>
         </div>
 
-        <!-- Social Login Hub -->
-        <div id="social-auth-hub" class="space-y-3 mb-10">
-            <button onclick="authSocial('google')" class="btn-social w-full">
-                <img src="https://www.google.com/favicon.ico" class="w-4 h-4"> Login with Google
+        <div id="social-hub" class="space-y-4 mb-12">
+            <button onclick="authSocial('google')" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center gap-4 font-bold text-sm">
+                <img src="https://www.google.com/favicon.ico" class="w-4 h-4"> Link Google Core
             </button>
-            <button onclick="authSocial('facebook')" class="btn-social w-full">
-                <i class="fa-brands fa-facebook text-blue-500"></i> Login with Facebook
-            </button>
-            <div class="flex items-center gap-4 py-2">
-                <hr class="flex-1 border-zinc-800"> <span class="text-[10px] font-bold text-zinc-600 uppercase">OR</span> <hr class="flex-1 border-zinc-800">
-            </div>
+            <div class="flex items-center gap-4 py-2"><hr class="flex-1 border-zinc-800"> <span class="text-[10px] font-bold text-zinc-700">ENCRYPTED LOGIN</span> <hr class="flex-1 border-zinc-800"></div>
         </div>
 
-        <div id="login-box" class="space-y-4 animate-view">
-            <input type="tel" id="l-phone" placeholder="Phone Number" class="input-elite">
+        <div id="login-box" class="space-y-5">
+            <input type="tel" id="l-phone" placeholder="Phone ID" class="input-elite">
             <input type="password" id="l-pass" placeholder="Secret Key" class="input-elite">
-            <button onclick="executeLogin()" class="btn-elite w-full py-5 text-lg mt-4">Initiate Login</button>
-            <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-zinc-600 pt-8">
-                <span onclick="toggleAuth(false)" class="cursor-pointer hover:text-orange-500">New Recruit? Sign Up</span>
-                <span onclick="showForgotModal()" class="cursor-pointer hover:text-orange-500">Key Recovery</span>
+            <button onclick="handleLogin()" class="btn-elite w-full py-5 text-lg mt-6">Deploy Login</button>
+            <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-zinc-600 pt-10">
+                <span onclick="toggleAuth(false)" class="cursor-pointer">New Recruit?</span>
+                <span onclick="triggerForgot()" class="cursor-pointer">Recover Key</span>
             </div>
         </div>
 
-        <div id="signup-box" class="hidden space-y-4 animate-view">
-            <input type="text" id="r-name" placeholder="In-Game Name" class="input-elite">
-            <input type="tel" id="r-phone" placeholder="Phone Number" class="input-elite">
-            <div class="space-y-1">
-                <label class="text-[10px] font-bold text-zinc-600 ml-2 uppercase">Birth Cycle (16+ Only)</label>
-                <input type="date" id="r-dob" class="input-elite">
-            </div>
-            <input type="password" id="r-pass" placeholder="Create Secret Key" class="input-elite">
+        <div id="signup-box" class="hidden space-y-4">
+            <input type="text" id="r-name" placeholder="Battle Alias" class="input-elite">
+            <input type="tel" id="r-phone" placeholder="Phone ID" class="input-elite">
+            <input type="date" id="r-dob" class="input-elite">
+            <input type="password" id="r-pass" placeholder="Create Key" class="input-elite">
             <input type="password" id="r-confirm" placeholder="Confirm Key" class="input-elite">
-            <button onclick="executeSignup()" class="btn-elite w-full py-5 text-lg mt-4">Direct Registration</button>
-            <p onclick="toggleAuth(true)" class="text-center text-[10px] font-bold text-zinc-600 pt-8 uppercase tracking-widest cursor-pointer">Back to Login</p>
+            <button onclick="handleSignup()" class="btn-elite w-full py-5 text-lg mt-6">Create Terminal</button>
+            <p onclick="toggleAuth(true)" class="text-center text-[10px] font-black text-zinc-600 pt-8 cursor-pointer uppercase">Back to Login</p>
         </div>
     </div>
 
-    <!-- MAIN APP SHELL -->
+    <!-- MAIN APP INTERFACE -->
     <div id="main-app" class="hidden h-full flex flex-col">
         <!-- Header -->
-        <header class="p-5 flex justify-between items-center bg-black/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-[100]">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center font-black italic shadow-lg shadow-orange-600/30" onclick="checkStaffToggle()">E</div>
+        <header class="p-6 flex justify-between items-center bg-black/60 backdrop-blur-3xl border-b border-white/5 sticky top-0 z-[100]">
+            <div class="flex items-center gap-4">
+                <div id="logo-tap-gate" class="w-12 h-12 rounded-2xl bg-orange-600 flex items-center justify-center font-black italic shadow-lg shadow-orange-600/20">E</div>
                 <div>
-                    <h2 class="gaming-font text-lg font-black italic">ELITESTAR</h2>
-                    <span id="header-badge" class="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Global Engine v7.0</span>
+                    <h2 class="gaming-font text-xl font-black italic leading-none">ELITESTAR</h2>
+                    <span id="role-status" class="text-[8px] font-black text-zinc-600 uppercase tracking-widest">User Terminal Active</span>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="bg-zinc-950 px-4 py-2 rounded-full border border-white/5 flex items-center gap-2" onclick="switchView('profile')">
-                    <i class="fa-solid fa-wallet text-orange-500 text-xs"></i>
-                    <span id="h-balance" class="font-black text-sm">₹0</span>
-                </div>
+            <div class="bg-zinc-950 px-5 py-3 rounded-full border border-white/5 flex items-center gap-2" onclick="switchView('profile')">
+                <i class="fa-solid fa-wallet text-orange-500 text-xs"></i>
+                <span id="h-bal" class="font-black text-sm">₹0</span>
             </div>
         </header>
 
+        <!-- Dynamic Views -->
         <div class="flex-1 relative overflow-hidden">
             
-            <!-- HOME VIEW: TOURNAMENTS -->
-            <section id="view-home" class="view-section active p-5">
-                <div class="glass-card p-5 mb-8 border-dashed border-2 border-orange-600/20" onclick="watchAdReward()">
+            <!-- HOME: BATTLES -->
+            <section id="view-home" class="view-section active p-6">
+                <div class="glass-card p-6 mb-10 border-dashed border-2 border-orange-600/20" onclick="watchAd()">
                     <div class="flex justify-between items-center relative z-10">
                         <div>
-                            <p class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">Combat Sponsorship</p>
-                            <h4 class="gaming-font text-lg italic">WATCH AD & EARN ₹1</h4>
+                            <p class="text-[10px] font-black text-orange-500 uppercase mb-1">Elite Sponsorship</p>
+                            <h4 class="gaming-font text-xl italic text-white">RECLAIM AD REWARD ₹1</h4>
                         </div>
-                        <i class="fa-solid fa-circle-play text-4xl text-orange-600 animate-pulse"></i>
+                        <i class="fa-solid fa-play-circle text-5xl text-orange-600 animate-pulse"></i>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-end mb-6">
-                    <h3 class="gaming-font text-2xl italic font-black">ACTIVE ARENAS</h3>
-                    <div id="staff-btn" class="hidden bg-orange-600/10 text-orange-500 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-orange-500/20" onclick="switchView('staff')">Staff Hub</div>
+                <div class="flex justify-between items-end mb-8">
+                    <h3 class="gaming-font text-2xl font-black italic">ARENA LIST</h3>
+                    <div id="staff-entry" class="hidden bg-orange-600/10 text-orange-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-orange-500/20" onclick="switchView('staff')">Staff Command</div>
+                    <div id="admin-entry" class="hidden bg-red-600/10 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-red-500/20" onclick="switchView('admin')">Admin Terminal</div>
                 </div>
 
-                <div id="tournaments-list" class="space-y-4">
-                    <!-- Cards via JS -->
+                <div id="match-list" class="space-y-6"></div>
+            </section>
+
+            <!-- SQUADS -->
+            <section id="view-squads" class="view-section p-6">
+                <h2 class="gaming-font text-4xl font-black italic mb-12 uppercase">Squad Hub</h2>
+                <div id="no-squad" class="grid grid-cols-2 gap-6">
+                    <div onclick="squadModal('create')" class="glass-card p-10 flex flex-col items-center gap-4 border-dashed border-2 border-zinc-800 cursor-pointer">
+                        <i class="fa-solid fa-shield-plus text-4xl text-orange-600"></i>
+                        <span class="font-black text-xs uppercase tracking-widest">Create Alpha</span>
+                    </div>
+                    <div onclick="squadModal('join')" class="glass-card p-10 flex flex-col items-center gap-4 border-dashed border-2 border-zinc-800 cursor-pointer">
+                        <i class="fa-solid fa-users-viewfinder text-4xl text-orange-600"></i>
+                        <span class="font-black text-xs uppercase tracking-widest">Join Alpha</span>
+                    </div>
+                </div>
+                <div id="active-squad" class="hidden glass-card p-8">
+                    <!-- Squad UI logic -->
+                    <div id="sq-data"></div>
+                    <div class="mt-8 bg-zinc-950 p-6 rounded-3xl border border-white/5">
+                        <div id="sq-chats" class="h-40 overflow-y-auto text-[11px] text-zinc-500 mb-6"></div>
+                        <div class="flex gap-4">
+                            <input type="text" id="sq-in" class="input-elite flex-1 h-12 text-sm" placeholder="Comms...">
+                            <button onclick="sendSq()" class="bg-orange-600 px-6 rounded-2xl"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- SQUADS VIEW -->
-            <section id="view-squads" class="view-section p-5">
-                <h2 class="gaming-font text-4xl font-black italic mb-8 uppercase">Squad Command</h2>
-                
-                <div id="no-squad" class="space-y-6">
+            <!-- PROFILE & WALLET -->
+            <section id="view-profile" class="view-section p-6">
+                <div class="glass-card p-10 mb-10">
+                    <h2 id="p-name" class="gaming-font text-3xl font-black italic">SOLDIER</h2>
+                    <p id="p-uid" class="text-orange-500 font-mono text-sm tracking-widest mt-2">UID: 0000000000</p>
+                    <div class="grid grid-cols-3 gap-4 mt-12">
+                        <div class="bg-zinc-900/50 p-5 rounded-3xl border border-white/5 text-center">
+                            <p class="text-[9px] uppercase font-black text-zinc-600">Wins</p>
+                            <p id="p-wins" class="text-2xl font-black">0</p>
+                        </div>
+                        <div onclick="openWallet()" class="bg-zinc-900 border-2 border-orange-600/30 p-5 rounded-3xl text-center cursor-pointer shadow-lg">
+                            <p class="text-[9px] uppercase font-black text-orange-500">Credits</p>
+                            <p id="p-bal" class="text-2xl font-black">₹0</p>
+                        </div>
+                        <div class="bg-zinc-900/50 p-5 rounded-3xl border border-white/5 text-center">
+                            <p class="text-[9px] uppercase font-black text-zinc-600">Battles</p>
+                            <p id="p-matches" class="text-2xl font-black">0</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full p-5 rounded-2xl bg-red-600/10 text-red-500 font-bold uppercase text-xs tracking-widest border border-red-600/20">Terminate Session</button>
+            </section>
+
+            <!-- STAFF PANEL (ROLE: isStaff) -->
+            <section id="view-staff" class="view-section p-6">
+                <h2 class="gaming-font text-3xl font-black italic mb-10 text-orange-600">STAFF COMMAND</h2>
+                <div class="glass-card p-8 space-y-5">
+                    <input type="text" id="m-title" placeholder="Arena Title" class="input-elite">
                     <div class="grid grid-cols-2 gap-4">
-                        <div onclick="initSquadAction('create')" class="glass-card p-6 flex flex-col items-center gap-3 border-dashed border-2 border-zinc-800 hover:border-orange-500 transition-all cursor-pointer">
-                            <i class="fa-solid fa-plus-circle text-3xl text-orange-600"></i>
-                            <span class="font-bold uppercase text-[10px] tracking-widest">Form Alpha</span>
-                        </div>
-                        <div onclick="initSquadAction('join')" class="glass-card p-6 flex flex-col items-center gap-3 border-dashed border-2 border-zinc-800 hover:border-orange-500 transition-all cursor-pointer">
-                            <i class="fa-solid fa-right-to-bracket text-3xl text-orange-600"></i>
-                            <span class="font-bold uppercase text-[10px] tracking-widest">Link Code</span>
-                        </div>
+                        <select id="m-mode" class="input-elite text-xs"><option>SOLO</option><option>DUO</option><option>SQUAD</option></select>
+                        <select id="m-map" class="input-elite text-xs"><option>Bermuda</option><option>Purgatory</option></select>
                     </div>
-                </div>
-
-                <div id="active-squad" class="hidden glass-card p-6 border-orange-600/30">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h3 id="sq-name-display" class="gaming-font text-2xl font-black italic">SQUAD_NAME</h3>
-                            <p id="sq-code-display" class="text-orange-500 font-mono text-sm tracking-widest mt-1">CODE: 000000</p>
-                        </div>
-                        <button onclick="leaveSquadConfirm()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Leave</button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="m-fee" placeholder="Entry Fee" class="input-elite">
+                        <input type="number" id="m-prize" placeholder="Prize Pool" class="input-elite">
                     </div>
-                    <div id="sq-members-list" class="space-y-3 mb-8">
-                        <!-- Members -->
-                    </div>
-                    <div class="bg-zinc-950 p-4 rounded-2xl border border-white/5">
-                        <div id="sq-chat-display" class="h-32 overflow-y-auto space-y-2 mb-4 text-[10px] text-zinc-500"></div>
-                        <div class="flex gap-2">
-                            <input type="text" id="sq-input" class="bg-zinc-900 flex-1 px-4 py-3 rounded-xl text-xs outline-none border border-white/5" placeholder="Team message...">
-                            <button onclick="sendSquadMsg()" class="bg-orange-600 px-4 rounded-xl"><i class="fa-solid fa-paper-plane text-xs"></i></button>
-                        </div>
-                    </div>
+                    <input type="datetime-local" id="m-time" class="input-elite">
+                    <button onclick="deployMatch()" class="btn-elite w-full py-5 text-sm">Broadcast Arena</button>
                 </div>
             </section>
 
-            <!-- SOCIAL VIEW -->
-            <section id="view-social" class="view-section">
-                <div class="p-5 border-b border-white/5 bg-black/50">
-                    <div class="relative">
-                        <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600"></i>
-                        <input type="number" id="player-search" placeholder="Search Player UID (10 Digits)" class="input-elite pl-12 h-14 text-sm">
-                        <button onclick="performSearch()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-orange-600 px-4 py-2 rounded-lg text-[10px] font-black">SCAN</button>
-                    </div>
+            <!-- ADMIN PANEL (ROLE: isAdmin) -->
+            <section id="view-admin" class="view-section p-6">
+                <h2 class="gaming-font text-3xl font-black italic mb-10 text-red-600">MASTER ADMIN</h2>
+                <div class="space-y-6" id="admin-pending-payouts">
+                    <h4 class="text-xs font-black uppercase text-zinc-500">Pending Payouts</h4>
+                    <!-- Withdrawals will load here -->
                 </div>
-                <div id="search-results-box" class="p-5 hidden"></div>
-                <div class="p-5">
-                    <h3 class="text-[10px] font-black text-zinc-600 uppercase tracking-[0.4em] mb-4">Secured Transmissions</h3>
-                    <div id="chat-list-box" class="space-y-1"></div>
-                </div>
-            </section>
-
-            <!-- PROFILE & WALLET VIEW -->
-            <section id="view-profile" class="view-section p-5">
-                <div class="glass-card p-6 mb-6">
-                    <div class="flex items-center gap-6 mb-8">
-                        <div class="w-24 h-24 rounded-3xl bg-zinc-900 border-2 border-orange-600 flex items-center justify-center shadow-2xl relative overflow-hidden">
-                            <i class="fa-solid fa-user-shield text-4xl text-zinc-800"></i>
-                        </div>
-                        <div>
-                            <h2 id="u-display-name" class="gaming-font text-3xl font-black italic">RECRUIT</h2>
-                            <p id="u-display-uid" class="text-orange-500 font-mono text-xs tracking-widest">UID: 0000000000</p>
-                            <div class="flex gap-2 mt-4">
-                                <span class="bg-orange-600/10 text-orange-500 px-2 py-1 rounded text-[8px] font-black uppercase border border-orange-500/20">Elite Soldier</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-3 mb-8">
-                        <div class="bg-zinc-900/50 p-4 rounded-2xl border border-white/5 text-center">
-                            <p class="text-[8px] text-zinc-600 uppercase font-black">Wins</p>
-                            <p id="u-wins-count" class="text-xl font-black">0</p>
-                        </div>
-                        <div onclick="openWalletModal()" class="bg-zinc-900/50 p-4 rounded-2xl border-2 border-orange-600/30 text-center cursor-pointer">
-                            <p class="text-[8px] text-orange-500 uppercase font-black">Wallet</p>
-                            <p id="u-wallet-bal" class="text-xl font-black text-white">₹0</p>
-                        </div>
-                        <div class="bg-zinc-900/50 p-4 rounded-2xl border border-white/5 text-center">
-                            <p class="text-[8px] text-zinc-600 uppercase font-black">Matches</p>
-                            <p id="u-matches-count" class="text-xl font-black">0</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="bg-zinc-900/40 p-4 rounded-xl flex justify-between items-center" onclick="handleLogout()">
-                            <span class="text-red-500 font-bold uppercase text-[10px] tracking-widest">Terminate Session</span>
-                            <i class="fa-solid fa-power-off text-red-500 text-sm"></i>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- STAFF PANEL -->
-            <section id="view-staff" class="view-section p-5">
-                <h2 class="gaming-font text-3xl font-black italic mb-10 uppercase text-orange-600">Command Center</h2>
-                
-                <div class="glass-card p-6 mb-8 border-orange-600/40">
-                    <h4 class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-4">Deploy New Arena</h4>
-                    <div class="space-y-4">
-                        <input type="text" id="m-title" placeholder="Battle Title" class="input-elite">
-                        <div class="grid grid-cols-2 gap-3">
-                            <select id="m-mode" class="input-elite text-xs"><option>SOLO</option><option>DUO</option><option>SQUAD</option></select>
-                            <select id="m-map" class="input-elite text-xs"><option>Bermuda</option><option>Purgatory</option></select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <input type="number" id="m-fee" placeholder="Fee" class="input-elite">
-                            <input type="number" id="m-prize" placeholder="Prize" class="input-elite">
-                        </div>
-                        <input type="datetime-local" id="m-time" class="input-elite text-xs">
-                        <button onclick="deployTournament()" class="btn-elite w-full py-4 text-xs">Broadcasting Arena</button>
-                    </div>
-                </div>
-
-                <div id="staff-monitor-list" class="space-y-4">
-                    <!-- Monitor active matches -->
+                <div class="mt-12 space-y-6" id="admin-user-management">
+                    <h4 class="text-xs font-black uppercase text-zinc-500">User Control</h4>
+                    <!-- Users search and ban logic -->
                 </div>
             </section>
         </div>
 
-        <!-- Navigation Bar -->
-        <nav class="fixed bottom-0 left-0 right-0 h-24 bg-black/95 backdrop-blur-2xl border-t border-white/5 flex justify-around items-center px-8 z-[500]">
-            <div onclick="switchView('home')" class="nav-item active flex flex-col items-center gap-1 cursor-pointer">
-                <i class="fa-solid fa-trophy text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Home</span>
-            </div>
-            <div onclick="switchView('squads')" class="nav-item flex flex-col items-center gap-1 cursor-pointer">
-                <i class="fa-solid fa-users-gear text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Squads</span>
-            </div>
-            <div onclick="switchView('social')" class="nav-item flex flex-col items-center gap-1 cursor-pointer">
-                <i class="fa-solid fa-comments text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Social</span>
-            </div>
-            <div onclick="switchView('profile')" class="nav-item flex flex-col items-center gap-1 cursor-pointer">
-                <i class="fa-solid fa-user-ninja text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Profile</span>
-            </div>
+        <!-- Master Bottom Nav -->
+        <nav class="fixed bottom-0 left-0 right-0 h-28 bg-black/95 backdrop-blur-3xl border-t border-white/5 flex justify-around items-center px-10 z-[500]">
+            <div onclick="switchView('home')" class="nav-item active flex flex-col items-center gap-1 cursor-pointer"><i class="fa-solid fa-trophy text-2xl"></i><span class="text-[9px] font-black uppercase">Battles</span></div>
+            <div onclick="switchView('squads')" class="nav-item flex flex-col items-center gap-1 cursor-pointer"><i class="fa-solid fa-users text-2xl"></i><span class="text-[9px] font-black uppercase">Squads</span></div>
+            <div onclick="switchView('profile')" class="nav-item flex flex-col items-center gap-1 cursor-pointer"><i class="fa-solid fa-user-shield text-2xl"></i><span class="text-[9px] font-black uppercase">Security</span></div>
         </nav>
     </div>
 
     <!-- GLOBAL MODAL OVERLAY -->
-    <div id="modal-container" class="fixed inset-0 bg-black/95 z-[9000] hidden flex items-center justify-center p-6 backdrop-blur-md">
+    <div id="modal-container" class="fixed inset-0 bg-black/95 z-[9000] hidden flex items-center justify-center p-8 backdrop-blur-lg">
         <div id="modal-content" class="w-full max-w-sm animate-view"></div>
-    </div>
-
-    <!-- CHAT OVERLAY -->
-    <div id="chat-terminal" class="fixed inset-0 bg-black z-[2000] hidden flex flex-col">
-        <header class="p-5 flex items-center gap-4 bg-zinc-950 border-b border-white/5">
-            <i class="fa-solid fa-arrow-left text-xl" onclick="closeChat()"></i>
-            <div class="w-12 h-12 rounded-2xl bg-orange-600 flex items-center justify-center font-black italic shadow-lg" id="chat-ico">P</div>
-            <div>
-                <h4 id="chat-title-display" class="gaming-font italic font-black text-white">PLAYER_NAME</h4>
-                <p class="text-[8px] font-black text-orange-500 uppercase tracking-widest">Encrypted Data Link</p>
-            </div>
-        </header>
-        <div id="chat-messages-box" class="flex-1 p-5 overflow-y-auto flex flex-col"></div>
-        <div class="p-5 bg-zinc-950 flex gap-3 border-t border-white/5">
-            <input type="text" id="chat-input-val" class="input-elite flex-1 h-14 text-sm" placeholder="Type message...">
-            <button onclick="sendChatMessage()" class="w-14 h-14 bg-orange-600 rounded-2xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-paper-plane"></i></button>
-        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, onSnapshot, addDoc, serverTimestamp, arrayUnion, arrayRemove, increment, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, onSnapshot, addDoc, serverTimestamp, arrayUnion, increment, runTransaction, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global Firebase Configuration
         const firebaseConfig = {
@@ -407,186 +314,116 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = "elitestar-v7-final";
+        const appId = "elitestar-v8-ultra";
         const razorpayKey = "rzp_test_SP3kbkcpNZf8Zl";
 
-        // Core State
-        let currentUser = null;
-        let userData = null;
-        let activeSquad = null;
-        let activeChatId = null;
+        let user = null;
+        let profile = null;
+        let tapCount = 0;
 
-        // --- Core UI Logic ---
-        window.switchView = (viewId) => {
+        // --- Core UI Control ---
+        window.switchView = (vId) => {
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-            document.getElementById(`view-${viewId}`).classList.add('active');
+            document.getElementById(`view-${vId}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach((it, idx) => {
+                const views = ['home', 'squads', 'profile'];
+                if(views[idx] === vId) it.classList.add('active'); else it.classList.remove('active');
+            });
+        };
+
+        const toggleMasterLoader = (s) => document.getElementById('master-loader').style.display = s ? 'flex' : 'none';
+        const openModal = (html) => { document.getElementById('modal-content').innerHTML = html; document.getElementById('modal-container').classList.remove('hidden'); };
+        window.closeModal = () => document.getElementById('modal-container').classList.add('hidden');
+
+        // --- AUTH: Direct System ---
+        window.toggleAuth = (isL) => {
+            document.getElementById('login-box').classList.toggle('hidden', !isL);
+            document.getElementById('signup-box').classList.toggle('hidden', isL);
+        };
+
+        window.handleSignup = async () => {
+            const n = document.getElementById('r-name').value;
+            const p = document.getElementById('r-phone').value;
+            const d = document.getElementById('r-dob').value;
+            const s = document.getElementById('r-pass').value;
+            if(!n || !p || !s) return alert("All fields required.");
             
-            document.querySelectorAll('.nav-item').forEach((item, idx) => {
-                const views = ['home', 'squads', 'social', 'profile'];
-                if(views[idx] === viewId) item.classList.add('nav-active');
-                else item.classList.remove('nav-active');
-            });
-        };
-
-        const toggleLoader = (show) => document.getElementById('master-loader').style.display = show ? 'flex' : 'none';
-
-        const openModal = (html) => {
-            document.getElementById('modal-content').innerHTML = html;
-            document.getElementById('modal-container').style.display = 'flex';
-        };
-        window.closeModal = () => document.getElementById('modal-container').style.display = 'none';
-
-        const eliteNotice = (msg) => {
-            openModal(`
-                <div class="glass-card p-10 text-center border-orange-600/50">
-                    <h3 class="gaming-font text-xl italic font-black mb-4 uppercase text-orange-500">Alert</h3>
-                    <p class="text-zinc-400 text-sm mb-8 leading-relaxed">${msg}</p>
-                    <button onclick="closeModal()" class="btn-elite w-full py-4 text-xs font-black">Acknowledge</button>
-                </div>
-            `);
-        };
-
-        // --- Authentication Flow (No OTP Direct) ---
-        window.toggleAuth = (isLogin) => {
-            document.getElementById('login-box').classList.toggle('hidden', !isLogin);
-            document.getElementById('signup-box').classList.toggle('hidden', isLogin);
-        };
-
-        window.executeSignup = async () => {
-            const name = document.getElementById('r-name').value;
-            const phone = document.getElementById('r-phone').value;
-            const dob = document.getElementById('r-dob').value;
-            const pass = document.getElementById('r-pass').value;
-            const confirm = document.getElementById('r-confirm').value;
-
-            if(!name || !phone || !dob || !pass) return eliteNotice("Sabhi details bharna zaruri hai.");
-            if(pass !== confirm) return eliteNotice("Keys match nahi ho rahe.");
-            
-            const age = new Date().getFullYear() - new Date(dob).getFullYear();
-            if(age < 16) return eliteNotice("Aapki age 16+ honi chahiye.");
-
-            toggleLoader(true);
+            toggleMasterLoader(true);
             try {
-                const email = `${phone}@elitestar.app`;
-                const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                await initializeUserProfile(cred.user.uid, name, phone, dob);
-            } catch (err) { eliteNotice(err.message); }
-            finally { toggleLoader(false); }
+                const cred = await createUserWithEmailAndPassword(auth, `${p}@elitestar.app`, s);
+                const uid10 = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+                const pObj = {
+                    username: n, phone: p, dob: d, appUid: uid10, walletBalance: 10,
+                    wins: 0, matchesPlayed: 0, isStaff: false, isAdmin: false, isBanned: false,
+                    ffUid: "", ffName: "", joinDate: new Date().toISOString()
+                };
+                await setDoc(doc(db, 'artifacts', appId, 'users', cred.user.uid, 'profile', 'data'), pObj);
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', cred.user.uid), { username: n, appUid: uid10, uid: cred.user.uid });
+            } catch (err) { alert(err.message); }
+            finally { toggleMasterLoader(false); }
         };
 
-        window.authSocial = async (provider) => {
-            const authProvider = provider === 'google' ? new GoogleAuthProvider() : new FacebookAuthProvider();
-            toggleLoader(true);
-            try {
-                const result = await signInWithPopup(auth, authProvider);
-                // Check if profile exists
-                const docSnap = await getDoc(doc(db, 'artifacts', appId, 'users', result.user.uid, 'profile', 'data'));
-                if(!docSnap.exists()) {
-                    await initializeUserProfile(result.user.uid, result.user.displayName, result.user.phoneNumber || "0000000000", "2000-01-01");
-                }
-            } catch (err) { eliteNotice("Social Login Error: " + err.message); }
-            finally { toggleLoader(false); }
+        window.handleLogin = async () => {
+            const p = document.getElementById('l-phone').value;
+            const s = document.getElementById('l-pass').value;
+            toggleMasterLoader(true);
+            try { await signInWithEmailAndPassword(auth, `${p}@elitestar.app`, s); }
+            catch (err) { alert("Access Denied."); }
+            finally { toggleMasterLoader(false); }
         };
 
-        const initializeUserProfile = async (uid, name, phone, dob) => {
-            const uid10 = Math.floor(1000000000 + Math.random() * 9000000000).toString();
-            const profile = {
-                username: name, phone, dob, appUid: uid10, walletBalance: 10,
-                wins: 0, matchesPlayed: 0, totalEarnings: 0, isBanned: false, isStaff: false,
-                ffUid: "", ffName: "", ffLevel: 1, joinDate: new Date().toISOString()
-            };
-            await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), profile);
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', uid), { username: name, appUid: uid10, uid: uid });
-        };
+        window.logout = () => signOut(auth).then(() => location.reload());
 
-        window.executeLogin = async () => {
-            const phone = document.getElementById('l-phone').value;
-            const pass = document.getElementById('l-pass').value;
-            toggleLoader(true);
-            try {
-                await signInWithEmailAndPassword(auth, `${phone}@elitestar.app`, pass);
-            } catch (err) { eliteNotice("Invalid credentials."); }
-            finally { toggleLoader(false); }
-        };
-
-        window.showForgotModal = () => {
-            const phone = prompt("Enter your registered Phone Number:");
-            if(!phone) return;
-            eliteNotice("Identity matching... Feature integrated with Firebase Auth SendPasswordResetEmail.");
-        };
-
-        window.handleLogout = () => signOut(auth).then(() => location.reload());
-
-        // --- Real-time Data Listeners ---
-        const initDataSystems = (u) => {
-            currentUser = u;
-            // Profile Listener
-            onSnapshot(doc(db, 'artifacts', appId, 'users', u.uid, 'profile', 'data'), (snap) => {
-                if(snap.exists()){
-                    userData = snap.data();
-                    if(userData.isBanned) {
-                        alert("BANNED: Hacker detected.");
-                        handleLogout();
-                    }
-                    syncUI();
-                }
-            });
-
-            // Tournaments Stream
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'tournaments'), (snap) => {
-                const list = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                renderTournaments(list);
-            });
-
-            // Squads Listener
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'squads'), (snap) => {
-                const sq = snap.docs.find(d => d.data().members.includes(u.uid));
-                if(sq) {
-                    activeSquad = {id: sq.id, ...sq.data()};
-                    renderSquadUI();
-                } else {
-                    activeSquad = null;
-                    document.getElementById('no-squad').classList.remove('hidden');
-                    document.getElementById('active-squad').classList.add('hidden');
-                }
-            });
-
-            // Threads Listener
-            onSnapshot(collection(db, 'artifacts', appId, 'users', u.uid, 'chats'), (snap) => {
-                renderThreads(snap.docs.map(d => ({id: d.id, ...d.data()})));
-            });
-        };
-
-        const syncUI = () => {
-            document.getElementById('h-balance').innerText = `₹${userData.walletBalance}`;
-            document.getElementById('u-display-name').innerText = userData.username;
-            document.getElementById('u-display-uid').innerText = `UID: ${userData.appUid}`;
-            document.getElementById('u-wins-count').innerText = userData.wins;
-            document.getElementById('u-wallet-bal').innerText = `₹${userData.walletBalance}`;
-            document.getElementById('u-matches-count').innerText = userData.matchesPlayed;
-            if(userData.isStaff) {
-                document.getElementById('staff-btn').classList.remove('hidden');
-                document.getElementById('header-badge').innerText = "STAFF TERMINAL ACTIVE";
-                document.getElementById('header-badge').classList.replace('text-zinc-500', 'text-orange-500');
+        // --- SECRET TERMINAL GATE (20 Taps) ---
+        const logo = document.getElementById('logo-tap-gate');
+        logo.addEventListener('click', () => {
+            tapCount++;
+            if(tapCount >= 20) {
+                tapCount = 0;
+                document.getElementById('override-modal').style.display = 'flex';
             }
+            setTimeout(() => { tapCount = 0; }, 5000); // Reset if not fast enough
+        });
+
+        window.closeOverride = () => document.getElementById('override-modal').style.display = 'none';
+
+        window.executeOverride = async () => {
+            const key = document.getElementById('override-key').value;
+            if(!key) return;
+            
+            toggleMasterLoader(true);
+            try {
+                const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
+                if(key === "7777") { // Staff Key
+                    await updateDoc(userRef, { isStaff: true });
+                    alert("STAFF TERMINAL UNLOCKED.");
+                } else if(key === "9999") { // Admin Key
+                    await updateDoc(userRef, { isAdmin: true, isStaff: true });
+                    alert("MASTER ADMIN TERMINAL UNLOCKED.");
+                } else {
+                    alert("INVALID SECURITY KEY.");
+                }
+                closeOverride();
+            } catch (err) { alert(err.message); }
+            finally { toggleMasterLoader(false); }
         };
 
-        // --- Wallet System (Razorpay & UPI) ---
-        window.openWalletModal = () => {
+        // --- WALLET: Razorpay & Withdraw ---
+        window.openWallet = () => {
             openModal(`
-                <div class="glass-card p-10 animate-view border-orange-600/40">
-                    <h2 class="gaming-font text-2xl font-black italic mb-8 uppercase text-center">Elite Wallet</h2>
-                    <div class="bg-orange-600/10 p-8 rounded-3xl text-center mb-8 border border-orange-600/20 shadow-inner">
-                        <p class="text-[10px] text-orange-500 uppercase font-black tracking-widest mb-1">Combat Credits</p>
-                        <p class="text-5xl font-black italic">₹${userData.walletBalance}</p>
+                <div class="glass-card p-10 animate-view border-orange-600/30">
+                    <h2 class="gaming-font text-2xl font-black uppercase mb-8 text-center">Elite Wallet</h2>
+                    <div class="bg-orange-600/10 p-10 rounded-[40px] text-center mb-10">
+                        <p class="text-[10px] uppercase font-black mb-2 text-orange-500">Credits</p>
+                        <p class="text-6xl font-black italic">₹${profile.walletBalance}</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="initDeposit()" class="bg-zinc-900 border border-white/5 py-6 rounded-2xl flex flex-col items-center gap-2">
-                            <i class="fa-solid fa-cloud-arrow-up text-orange-500"></i>
+                    <div class="grid grid-cols-2 gap-5">
+                        <button onclick="initDep()" class="bg-zinc-900 border border-white/5 py-7 rounded-3xl flex flex-col items-center gap-3">
+                            <i class="fa-solid fa-cloud-arrow-up text-orange-500 text-2xl"></i>
                             <span class="text-[9px] font-black uppercase">Deposit</span>
                         </button>
-                        <button onclick="initWithdraw()" class="bg-zinc-900 border border-white/5 py-6 rounded-2xl flex flex-col items-center gap-2">
-                            <i class="fa-solid fa-paper-plane text-zinc-500"></i>
+                        <button onclick="initWit()" class="bg-zinc-900 border border-white/5 py-7 rounded-3xl flex flex-col items-center gap-3">
+                            <i class="fa-solid fa-paper-plane text-zinc-500 text-2xl"></i>
                             <span class="text-[9px] font-black uppercase">Withdraw</span>
                         </button>
                     </div>
@@ -594,250 +431,101 @@
             `);
         };
 
-        window.initDeposit = () => {
-            const amt = prompt("Amount (Min ₹25):");
-            if(!amt || parseInt(amt) < 25) return eliteNotice("Minimum ₹25 required.");
+        window.initDep = () => {
+            const amt = prompt("Deposit Amount (Min ₹25):");
+            if(!amt || parseInt(amt) < 25) return alert("Min ₹25");
             const options = {
                 key: razorpayKey, amount: amt * 100, currency: "INR", name: "ELITESTAR",
                 handler: async function(res) {
-                    await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), {
+                    await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'), {
                         walletBalance: increment(parseInt(amt))
                     });
-                    closeModal(); eliteNotice("Deposit Successful!");
+                    alert("Wallet Loaded!"); closeModal();
                 },
                 theme: { color: "#FF6B00" }
             };
             new Razorpay(options).open();
         };
 
-        window.initWithdraw = async () => {
-            if(userData.walletBalance < 100) return eliteNotice("Min ₹100 required to withdraw.");
+        window.initWit = async () => {
+            if(profile.walletBalance < 100) return alert("Min ₹100 required.");
             const upi = prompt("Enter UPI ID (e.g. user@ybl):");
-            const amt = prompt("Amount to withdraw:");
-            if(!upi || parseInt(amt) < 100) return;
+            const amt = prompt("Amount:");
+            if(!upi || !amt || parseInt(amt) < 100) return;
 
-            toggleLoader(true);
-            try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'withdrawals'), {
-                    uid: currentUser.uid, appUid: userData.appUid, upi, amt: parseInt(amt), status: 'PENDING', ts: serverTimestamp()
-                });
-                await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), {
-                    walletBalance: increment(-parseInt(amt))
-                });
-                closeModal(); eliteNotice("Withdrawal request dispatched!");
-            } catch (err) { alert(err.message); }
-            finally { toggleLoader(false); }
+            toggleMasterLoader(true);
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'withdrawals'), {
+                uid: user.uid, appUid: profile.appUid, username: profile.username, upi, amt: parseInt(amt), status: 'PENDING', ts: serverTimestamp()
+            });
+            await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'), {
+                walletBalance: increment(-parseInt(amt))
+            });
+            toggleMasterLoader(false);
+            alert("Payout request dispatched to Admin.");
+            closeModal();
         };
 
-        // --- Tournament Logic (Auto Room Creation) ---
-        const renderTournaments = (list) => {
-            const container = document.getElementById('tournaments-list');
-            if(list.length === 0) { container.innerHTML = `<div class="py-10 text-center opacity-20 font-black uppercase text-xs">No active arenas</div>`; return; }
-            container.innerHTML = list.map(t => `
+        // --- TOURNAMENT SYSTEM ---
+        const renderMatches = (list) => {
+            const container = document.getElementById('match-list');
+            if(list.length === 0) { container.innerHTML = `<p class="py-20 text-center opacity-20 text-xs font-black uppercase">No active skirmishes</p>`; return; }
+            container.innerHTML = list.map(m => `
                 <div class="t-card">
                     <div class="flex justify-between items-start mb-6">
                         <div>
-                            <span class="text-[9px] font-black bg-orange-600/20 text-orange-500 px-2 py-1 rounded uppercase tracking-widest">${t.mode}</span>
-                            <h3 class="gaming-font text-xl font-black italic mt-2">${t.title}</h3>
+                            <span class="text-[9px] font-black bg-orange-600/20 text-orange-500 px-3 py-1.5 rounded-xl uppercase">${m.mode} • ${m.map}</span>
+                            <h3 class="gaming-font text-2xl font-black italic mt-4">${m.title}</h3>
                         </div>
-                        <div class="text-right">
-                            <p class="text-[8px] text-zinc-600 uppercase font-black">Prize Pool</p>
-                            <p class="text-2xl font-black text-orange-500">₹${t.prize}</p>
-                        </div>
+                        <div class="text-right"><p class="text-[8px] uppercase font-black text-zinc-600">Prize Pool</p><p class="text-3xl font-black text-orange-500">₹${m.prize}</p></div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="bg-black/50 p-3 rounded-xl border border-white/5 text-center">
-                            <p class="text-[7px] text-zinc-600 uppercase font-black">Fee</p><p class="text-sm font-bold">₹${t.fee}</p>
-                        </div>
-                        <div class="bg-black/50 p-3 rounded-xl border border-white/5 text-center">
-                            <p class="text-[7px] text-zinc-600 uppercase font-black">Lobby</p><p class="text-sm font-bold">${t.joined || 0}/48</p>
-                        </div>
+                    <div class="flex justify-between items-center bg-black/40 p-5 rounded-3xl mb-6">
+                        <div><p class="text-[8px] font-black text-zinc-500 uppercase">Entry Fee</p><p class="font-bold">₹${m.fee}</p></div>
+                        <div><p class="text-[8px] font-black text-zinc-500 uppercase">Slot</p><p class="font-bold">${m.joined || 0}/48</p></div>
                     </div>
-                    <button onclick="openJoinMatch('${t.id}', ${t.fee}, '${t.mode}')" class="btn-elite w-full py-4 text-[10px]">Prepare for Deployment</button>
+                    <button onclick="joinArena('${m.id}', ${m.fee})" class="btn-elite w-full py-5 text-xs">Prepare for Deployment</button>
                 </div>
             `).join('');
         };
 
-        window.openJoinMatch = (id, fee, mode) => {
-            if(userData.walletBalance < fee) return eliteNotice("Balance insufficient.");
+        window.joinArena = (id, fee) => {
+            if(profile.walletBalance < fee) return alert("Balance Low.");
             openModal(`
                 <div class="glass-card p-10 animate-view">
-                    <h2 class="gaming-font text-xl italic font-black mb-6 uppercase text-center text-orange-500">Battle Intel</h2>
-                    <input type="number" id="j-ffuid" placeholder="FF UID" class="input-elite mb-4" value="${userData.ffUid}">
-                    <input type="text" id="j-ffname" placeholder="In-game Name" class="input-elite mb-6" value="${userData.ffName}">
-                    ${mode === 'DUO' ? '<input type="text" id="j-p2" placeholder="Teammate Name" class="input-elite mb-4">' : ''}
-                    ${mode === 'SQUAD' ? '<input type="text" id="j-p2" placeholder="P2"><input type="text" id="j-p3" placeholder="P3"><input type="text" id="j-p4" placeholder="P4">' : ''}
-                    <button onclick="confirmJoin('${id}', ${fee})" class="btn-elite w-full py-5 text-sm">Pay and Confirm</button>
+                    <h2 class="gaming-font text-xl font-black text-center mb-8 uppercase text-orange-500">Deploy Intel</h2>
+                    <input type="number" id="j-ffuid" placeholder="Free Fire UID" class="input-elite mb-4" value="${profile.ffUid}">
+                    <input type="text" id="j-ffname" placeholder="In-game Name" class="input-elite mb-10" value="${profile.ffName}">
+                    <button onclick="executeJoin('${id}', ${fee})" class="btn-elite w-full py-5 text-sm">Pay and Confirm</button>
                 </div>
             `);
         };
 
-        window.confirmJoin = async (id, fee) => {
+        window.executeJoin = async (id, fee) => {
             const uid = document.getElementById('j-ffuid').value;
             const name = document.getElementById('j-ffname').value;
-            if(!uid || !name) return eliteNotice("Stats incomplete.");
+            if(!uid || !name) return;
 
-            toggleLoader(true);
+            toggleMasterLoader(true);
             try {
-                // Auto-slot: Use transaction to ensure room doesn't exceed 48
-                await runTransaction(db, async (transaction) => {
-                    const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'tournaments', id);
-                    const matchSnap = await transaction.get(matchRef);
-                    let joined = matchSnap.data().joined || 0;
+                await runTransaction(db, async (tx) => {
+                    const mRef = doc(db, 'artifacts', appId, 'public', 'data', 'tournaments', id);
+                    const snap = await tx.get(mRef);
+                    if(snap.data().joined >= 48) throw "Arena Full.";
                     
-                    if(joined >= 48) {
-                        // Logic to create Room 2 would be triggered by Admin or this transaction automatically
-                        // For MVP, we alert full.
-                        throw new Error("Room is Full! Lobby 2 creation pending.");
-                    }
-
-                    transaction.update(matchRef, { joined: joined + 1 });
-                    transaction.update(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), {
-                        walletBalance: increment(-fee), matchesPlayed: increment(1),
-                        ffUid: uid, ffName: name
+                    tx.update(mRef, { joined: (snap.data().joined || 0) + 1 });
+                    tx.update(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'), {
+                        walletBalance: increment(-fee), matchesPlayed: increment(1), ffUid: uid, ffName: name
                     });
-                    transaction.set(doc(collection(db, 'artifacts', appId, 'public', 'data', 'tournaments', id, 'participants')), {
-                        uid: currentUser.uid, appUid: userData.appUid, ffName: name, ffUid: uid, ts: serverTimestamp()
+                    tx.set(doc(collection(db, 'artifacts', appId, 'public', 'data', 'tournaments', id, 'participants')), {
+                        uid: user.uid, appUid: profile.appUid, name, ffUid: uid, ts: serverTimestamp()
                     });
                 });
-                closeModal(); eliteNotice("Battle Entry Confirmed!");
-            } catch (err) { eliteNotice(err.message); }
-            finally { toggleLoader(false); }
+                alert("Entry Successful!"); closeModal();
+            } catch (err) { alert(err); }
+            finally { toggleMasterLoader(false); }
         };
 
-        // --- Squad & Comms ---
-        window.initSquadAction = (action) => {
-            if(action === 'create') {
-                const n = prompt("Squad Alpha Name:");
-                if(!n) return;
-                const c = Math.floor(100000 + Math.random() * 900000).toString();
-                toggleLoader(true);
-                addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'squads'), {
-                    name: n, code: c, members: [currentUser.uid], leader: currentUser.uid
-                }).then(() => toggleLoader(false));
-            } else {
-                const c = prompt("Enter 6-Digit Code:");
-                if(!c) return;
-                toggleLoader(true);
-                const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'squads'), where("code", "==", c));
-                onSnapshot(q, async (snap) => {
-                    if(snap.empty) { eliteNotice("Invalid Code."); toggleLoader(false); return; }
-                    const sq = snap.docs[0];
-                    if(sq.data().members.length >= 4) { eliteNotice("Squad Full."); toggleLoader(false); return; }
-                    await updateDoc(sq.ref, { members: arrayUnion(currentUser.uid) });
-                    toggleLoader(false);
-                }, { once: true });
-            }
-        };
-
-        const renderSquadUI = () => {
-            document.getElementById('no-squad').classList.add('hidden');
-            document.getElementById('active-squad').classList.remove('hidden');
-            document.getElementById('sq-name-display').innerText = activeSquad.name;
-            document.getElementById('sq-code-display').innerText = `CODE: ${activeSquad.code}`;
-            
-            const list = document.getElementById('sq-members-list');
-            list.innerHTML = activeSquad.members.map(m => `
-                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl">
-                    <div class="flex items-center gap-4">
-                        <div class="w-8 h-8 rounded-full bg-zinc-900 border border-orange-500/20 flex items-center justify-center text-[8px] font-black">${m === activeSquad.leader ? 'LDR' : 'MEM'}</div>
-                        <span class="text-xs font-bold">${m === currentUser.uid ? 'YOU' : 'Warrior'}</span>
-                    </div>
-                </div>
-            `).join('');
-
-            // Squad Chat
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'squads', activeSquad.id, 'chats'), (snap) => {
-                const box = document.getElementById('sq-chat-display');
-                const msgs = snap.docs.map(d => d.data()).sort((a,b) => a.ts - b.ts);
-                box.innerHTML = msgs.map(m => `<div><span class="text-orange-500 font-bold">${m.sender}:</span> ${m.text}</div>`).join('');
-                box.scrollTop = box.scrollHeight;
-            });
-        };
-
-        window.sendSquadMsg = () => {
-            const v = document.getElementById('sq-input').value;
-            if(!v) return;
-            addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'squads', activeSquad.id, 'chats'), {
-                text: v, sender: userData.username, ts: serverTimestamp()
-            });
-            document.getElementById('sq-input').value = '';
-        };
-
-        // --- Social/Search ---
-        window.performSearch = () => {
-            const val = document.getElementById('player-search').value;
-            if(val.length < 5) return;
-            toggleLoader(true);
-            const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'profiles'), where("appUid", "==", val));
-            onSnapshot(q, (snap) => {
-                const box = document.getElementById('search-results-box');
-                box.classList.remove('hidden');
-                if(snap.empty) box.innerHTML = `<p class="text-center opacity-30 text-xs font-bold">NO SOUL FOUND</p>`;
-                else {
-                    const p = snap.docs[0].data();
-                    box.innerHTML = `
-                        <div class="glass-card p-5 border-orange-500/30 flex justify-between items-center">
-                            <div><h4 class="font-black italic">${p.username}</h4><p class="text-orange-500 text-[9px] font-mono">UID: ${p.appUid}</p></div>
-                            <button onclick="openChat('${p.uid}', '${p.username}')" class="bg-orange-600 px-4 py-2 rounded-lg text-[10px] font-black">CHAT</button>
-                        </div>
-                    `;
-                }
-                toggleLoader(false);
-            });
-        };
-
-        window.openChat = (targetUid, name) => {
-            activeChatId = [currentUser.uid, targetUid].sort().join('_');
-            document.getElementById('chat-terminal').classList.remove('hidden');
-            document.getElementById('chat-title-display').innerText = name;
-            document.getElementById('chat-ico').innerText = name[0];
-
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'chats', activeChatId, 'messages'), (snap) => {
-                const box = document.getElementById('chat-messages-box');
-                const msgs = snap.docs.map(d => d.data()).sort((a,b) => a.ts - b.ts);
-                box.innerHTML = msgs.map(m => `
-                    <div class="bubble ${m.sender === currentUser.uid ? 'sent' : 'received'}">${m.text}</div>
-                `).join('');
-                box.scrollTop = box.scrollHeight;
-            });
-
-            setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'chats', activeChatId), { name, targetUid, ts: serverTimestamp() }, {merge: true});
-        };
-
-        window.closeChat = () => document.getElementById('chat-terminal').classList.add('hidden');
-
-        window.sendChatMessage = async () => {
-            const v = document.getElementById('chat-input-val').value;
-            if(!v) return;
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'chats', activeChatId, 'messages'), {
-                text: v, sender: currentUser.uid, ts: serverTimestamp()
-            });
-            document.getElementById('chat-input-val').value = '';
-        };
-
-        // --- Ad System ---
-        window.watchAdReward = () => {
-            toggleLoader(true);
-            setTimeout(async () => {
-                await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), {
-                    walletBalance: increment(1)
-                });
-                toggleLoader(false);
-                eliteNotice("Ad Reward: ₹1 Added to Wallet.");
-            }, 5000);
-        };
-
-        // --- Staff Hub ---
-        window.checkStaffToggle = () => {
-            const code = prompt("Enter Terminal Access Code:");
-            if(code === "7777") {
-                updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), { isStaff: true });
-                eliteNotice("STAFF ACCESS GRANTED.");
-            }
-        };
-
-        window.deployTournament = async () => {
+        // --- STAFF: Create Match ---
+        window.deployMatch = async () => {
             const title = document.getElementById('m-title').value;
             const fee = parseInt(document.getElementById('m-fee').value);
             const prize = parseInt(document.getElementById('m-prize').value);
@@ -845,31 +533,89 @@
             const mode = document.getElementById('m-mode').value;
             const map = document.getElementById('m-map').value;
 
-            if(!title || !time || isNaN(fee)) return eliteNotice("Arena intel incomplete.");
-
-            toggleLoader(true);
-            try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'tournaments'), {
-                    title, fee, prize, time, mode, map, joined: 0, ts: serverTimestamp()
-                });
-                eliteNotice("Battle Arena deployed globally.");
-            } catch (err) { eliteNotice(err.message); }
-            finally { toggleLoader(false); }
+            if(!title || !time || isNaN(fee)) return alert("Incomplete Data.");
+            toggleMasterLoader(true);
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'tournaments'), { title, fee, prize, time, mode, map, joined: 0, ts: serverTimestamp() });
+            alert("Match Live!"); toggleMasterLoader(false);
         };
 
-        // --- Bootstrap ---
+        // --- ADMIN: Payout Management ---
+        const renderAdminHub = () => {
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'withdrawals'), (snap) => {
+                const box = document.getElementById('admin-pending-payouts');
+                box.innerHTML = snap.docs.map(d => {
+                    const w = d.data();
+                    if(w.status !== 'PENDING') return '';
+                    return `
+                        <div class="glass-card p-6 border-white/5 flex justify-between items-center mb-4">
+                            <div><p class="font-bold text-sm">${w.username}</p><p class="text-[10px] text-orange-500 font-mono">${w.upi}</p><p class="font-black text-xl">₹${w.amt}</p></div>
+                            <div class="flex gap-2">
+                                <button onclick="actionPayout('${d.id}', 'SUCCESS')" class="bg-green-600 p-3 rounded-xl text-xs"><i class="fa-solid fa-check"></i></button>
+                                <button onclick="actionPayout('${d.id}', 'REJECTED', '${w.uid}', ${w.amt})" class="bg-red-600 p-3 rounded-xl text-xs"><i class="fa-solid fa-times"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        };
+
+        window.actionPayout = async (id, status, uid = null, amt = 0) => {
+            toggleMasterLoader(true);
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'withdrawals', id), { status });
+            if(status === 'REJECTED') {
+                await updateDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), { walletBalance: increment(amt) });
+            }
+            toggleMasterLoader(false);
+        };
+
+        // --- AD REWARD ---
+        window.watchAd = () => {
+            toggleMasterLoader(true);
+            setTimeout(async () => {
+                await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'), { walletBalance: increment(1) });
+                toggleMasterLoader(false); alert("₹1 Ad Bonus Added.");
+            }, 3000);
+        };
+
+        // --- INIT ---
         onAuthStateChanged(auth, (u) => {
             if(u) {
+                user = u;
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
-                initDataSystems(u);
-                setTimeout(() => toggleLoader(false), 1500);
+                
+                onSnapshot(doc(db, 'artifacts', appId, 'users', u.uid, 'profile', 'data'), (snap) => {
+                    profile = snap.data();
+                    if(profile.isBanned) { alert("ACCOUNT BANNED."); logout(); }
+                    
+                    document.getElementById('p-name').innerText = profile.username;
+                    document.getElementById('p-uid').innerText = `UID: ${profile.appUid}`;
+                    document.getElementById('h-bal').innerText = `₹${profile.walletBalance}`;
+                    document.getElementById('p-bal').innerText = `₹${profile.walletBalance}`;
+                    document.getElementById('p-wins').innerText = profile.wins;
+                    document.getElementById('p-matches').innerText = profile.matchesPlayed;
+
+                    if(profile.isStaff) {
+                        document.getElementById('staff-entry').classList.remove('hidden');
+                        document.getElementById('role-status').innerText = "STAFF TERMINAL";
+                    }
+                    if(profile.isAdmin) {
+                        document.getElementById('admin-entry').classList.remove('hidden');
+                        document.getElementById('role-status').innerText = "MASTER ADMIN TERMINAL";
+                        document.getElementById('role-status').style.color = "red";
+                        renderAdminHub();
+                    }
+                });
+
+                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'tournaments'), (snap) => {
+                    renderMatches(snap.docs.map(d => ({id: d.id, ...d.data()})));
+                });
+
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('hidden');
-                toggleLoader(false);
-                toggleAuth(true);
             }
+            toggleMasterLoader(false);
         });
 
     </script>
