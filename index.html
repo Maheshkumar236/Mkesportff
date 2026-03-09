@@ -3,51 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ELITESTAR - Complete Esports System</title>
+    <title>ELITESTAR - Pro Tournament System</title>
     
-    <!-- External Scripts -->
+    <!-- Core Frameworks -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
-    <!-- Firebase SDK (Compat) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
         :root { --neon: #FF6B00; --bg: #050505; }
-        body { background-color: var(--bg); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
-        .font-gaming { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: -1px; }
-        
-        /* UI Enhancements */
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
-        .neon-border { border: 1px solid var(--neon); box-shadow: 0 0 15px rgba(255, 107, 0, 0.3); }
+        body { background-color: #000; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        .font-gaming { font-family: 'Orbitron', sans-serif; text-transform: uppercase; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; }
+        .neon-glow { box-shadow: 0 0 20px rgba(255, 107, 0, 0.3); }
         .neon-text { color: var(--neon); text-shadow: 0 0 10px rgba(255, 107, 0, 0.5); }
         
-        /* Preloader */
-        #boot-loader { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 50px; height: 50px; border: 3px solid #111; border-top-color: var(--neon); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Automatic Splash Screen Animation */
+        #splash-screen { 
+            position: fixed; inset: 0; background: #000; z-index: 10000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s;
+        }
+        .splash-logo { width: 80px; height: 80px; background: var(--neon); border-radius: 24px; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(255, 107, 0, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); } }
         
-        /* Hide Scrollbar */
+        .loading-bar { width: 150px; height: 2px; background: #111; margin-top: 30px; border-radius: 10px; overflow: hidden; }
+        .loading-progress { width: 0%; height: 100%; background: var(--neon); animation: progress 2.5s forwards; }
+        @keyframes progress { to { width: 100%; } }
+
         ::-webkit-scrollbar { width: 0px; }
-        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
-        input, select { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; outline: none !important; }
+        input, select { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; outline: none !important; border-radius: 12px; }
         .btn-active:active { transform: scale(0.95); transition: 0.1s; }
     </style>
 </head>
 <body>
 
-    <div id="boot-loader">
-        <div class="spinner"></div>
-        <div class="mt-6 font-gaming text-[#FF6B00] text-xl animate-pulse tracking-widest">ELITESTAR</div>
-        <div class="mt-2 text-[10px] text-gray-600 uppercase font-bold tracking-[3px]">System Initializing...</div>
+    <!-- Professional Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-logo neon-glow">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34M12 2a5 5 0 0 0-5 5v2c0 2.2 1.8 4 4 4h2c2.2 0 4-1.8 4-4V7a5 5 0 0 0-5-5z"/></svg>
+        </div>
+        <div class="mt-6 font-gaming text-[#FF6B00] text-2xl tracking-[5px] font-black">ELITESTAR</div>
+        <div class="loading-bar"><div class="loading-progress"></div></div>
+        <div class="mt-4 text-[10px] text-gray-500 uppercase tracking-widest font-bold">Connecting to Battle Server...</div>
     </div>
 
     <div id="root"></div>
@@ -55,7 +61,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- 1. USER PROVIDED CONFIGURATION ---
+        // --- 1. CONFIGURATION ---
         const RAZORPAY_KEY = "rzp_test_SP3kbkcpNZf8Zl";
         const GEMINI_API_KEY = "AIzaSyDuO-mZyPg0wrOodjBrJRS7fqSDsvW4SUk";
         const firebaseConfig = {
@@ -64,495 +70,325 @@
             projectId: "eliteweb-5b512",
             storageBucket: "eliteweb-5b512.firebasestorage.app",
             messagingSenderId: "474751993215",
-            appId: "1:474751993215:web:88be5ffccdd88651cf464a",
-            measurementId: "G-9HZY4280CY"
+            appId: "1:474751993215:web:88be5ffccdd88651cf464a"
         };
 
-        // Initialize Firebase
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
-        const appId = "elitestar-master-v1";
+        const auth = firebase.auth();
+        const appId = "elitestar-v1";
 
-        // --- 2. ICON COMPONENT ---
+        // --- 2. ICONS ---
         const Icon = ({ name, size = 20, className = "" }) => {
-            const iconRef = useRef(null);
-            useEffect(() => {
-                if (window.lucide && window.lucide.icons[name]) {
-                    const svg = window.lucide.icons[name].toSvg({ width: size, height: size, class: className });
-                    if (iconRef.current) iconRef.current.innerHTML = svg;
-                }
-            }, [name, size, className]);
-            return <span ref={iconRef} className="inline-flex"></span>;
+            const paths = {
+                Trophy: `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34M12 2a5 5 0 0 0-5 5v2c0 2.2 1.8 4 4 4h2c2.2 0 4-1.8 4-4V7a5 5 0 0 0-5-5z"/>`,
+                Home: `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
+                Play: `<path d="M14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/>`,
+                Chat: `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
+                Users: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>`,
+                Wallet: `<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M22 12h-4a2 2 0 0 0 0 4h4"/>`,
+                Shield: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
+                Bot: `<rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/>`,
+                Send: `<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>`,
+                Crown: `<path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>`,
+                Zap: `<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>`,
+                X: `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`
+            };
+            return (
+                <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{ __html: paths[name] || '' }} />
+            );
         };
 
-        // --- 3. MAIN APPLICATION ---
+        // --- 3. MAIN APP ---
         const App = () => {
             const [view, setView] = useState('home');
-            const [user, setUser] = useState(null);
             const [profile, setProfile] = useState(null);
             const [matches, setMatches] = useState([]);
-            const [loading, setLoading] = useState(true);
-            const [isBotOpen, setIsBotOpen] = useState(false);
-            const [activeJoin, setActiveJoin] = useState(null);
+            const [botOpen, setBotOpen] = useState(false);
+            const [joinMatch, setJoinMatch] = useState(null);
 
-            // Auth & Profile Listener
             useEffect(() => {
+                // Splash Screen Auto-Hide after 3 seconds
+                const splashTimer = setTimeout(() => {
+                    const splash = document.getElementById('splash-screen');
+                    splash.style.opacity = '0';
+                    setTimeout(() => splash.style.visibility = 'hidden', 800);
+                }, 3000);
+
+                // Auth
                 const unsubAuth = auth.onAuthStateChanged(async (u) => {
                     if (u) {
-                        setUser(u);
                         syncProfile(u.uid);
                     } else {
                         await auth.signInAnonymously();
                     }
                 });
 
-                // Matches Listener
+                // Matches (Background Load)
                 const unsubMatches = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches')
                     .onSnapshot(snap => {
                         setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-                        setLoading(false);
-                        document.getElementById('boot-loader').style.display = 'none';
                     });
 
-                return () => { unsubAuth(); unsubMatches(); };
+                return () => { unsubAuth(); unsubMatches(); clearTimeout(splashTimer); };
             }, []);
 
             const syncProfile = (uid) => {
                 const ref = db.collection('artifacts').doc(appId).collection('users').doc(uid).collection('profile').doc('data');
                 ref.onSnapshot(snap => {
-                    if (snap.exists) {
-                        setProfile(snap.data());
-                    } else {
-                        const data = {
-                            uid, username: "Player_" + Math.floor(Math.random()*9999), 
-                            starId: "STAR-" + Math.floor(1000 + Math.random()*8000),
-                            balance: 100, role: 'user', ffId: '', ffName: '', ffLevel: 1, wins: 0, matchesPlayed: 0
-                        };
-                        ref.set(data);
-                    }
+                    if (snap.exists) setProfile(snap.data());
+                    else ref.set({ uid, username: "Player_"+Math.floor(1000+Math.random()*9000), starId: "STAR-"+Math.floor(1000+Math.random()*8000), balance: 100, role: 'user', wins: 0 });
                 });
             };
 
-            // Razorpay Payment Flow
-            const handlePayment = (amt) => {
-                if (!amt || amt < 1) return;
+            const deposit = (amt) => {
                 const options = {
-                    key: RAZORPAY_KEY,
-                    amount: amt * 100,
-                    currency: "INR",
-                    name: "ELITESTAR",
-                    description: "Wallet Deposit",
+                    key: RAZORPAY_KEY, amount: amt * 100, currency: "INR", name: "ELITESTAR",
                     handler: async function(res) {
-                        const newBal = (profile.balance || 0) + parseInt(amt);
-                        await db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('profile').doc('data').update({ balance: newBal });
-                        alert("Deposit Successful! ID: " + res.razorpay_payment_id);
+                        await db.collection('artifacts').doc(appId).collection('users').doc(auth.currentUser.uid).collection('profile').doc('data').update({
+                            balance: firebase.firestore.FieldValue.increment(parseInt(amt))
+                        });
+                        alert("Paisa add ho gaya!");
                     },
-                    prefill: { name: profile.username },
-                    theme: { color: "#FF6B00" }
+                    prefill: { name: profile?.username }, theme: { color: "#FF6B00" }
                 };
-                const rzp = new window.Razorpay(options);
-                rzp.open();
+                new Razorpay(options).open();
             };
-
-            // AI Bot Response with Gemini
-            const getAIResponse = async (prompt) => {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }],
-                            systemInstruction: { parts: [{ text: "You are ELITE BOT, the assistant for ELITESTAR Free Fire tournament app. Answer questions about withdrawals (24h), deposits (instant), and matches (in Arena tab) briefly and helpfully in Hindi/English mixed." }] }
-                        })
-                    });
-                    const data = await response.json();
-                    return data.candidates[0].content.parts[0].text;
-                } catch (e) { return "Maaf kijiye, main abhi reply nahi kar sakta. Kripya Staff se sampark karein."; }
-            };
-
-            if (loading) return null;
 
             return (
-                <div className="max-w-md mx-auto min-h-screen relative pb-28 selection:bg-[#FF6B00]/30">
-                    {/* Header */}
-                    <header className="p-4 flex justify-between items-center sticky top-0 z-[100] bg-black/90 backdrop-blur-md border-b border-white/5">
+                <div className="max-w-md mx-auto min-h-screen pb-24 bg-[#050505] text-white overflow-hidden relative">
+                    <header className="p-4 flex justify-between items-center bg-black/95 border-b border-white/5 sticky top-0 z-[100] backdrop-blur-md">
                         <div className="flex items-center gap-2" onClick={() => setView('home')}>
-                            <div className="bg-[#FF6B00] p-1.5 rounded-xl shadow-[0_0_15px_rgba(255,107,0,0.3)]">
+                            <div className="bg-[#FF6B00] p-1.5 rounded-xl neon-glow">
                                 <Icon name="Trophy" size={18} className="text-black" />
                             </div>
-                            <span className="font-gaming text-xl italic font-black">ELITE<span className="neon-text">STAR</span></span>
+                            <span className="font-gaming text-lg tracking-tighter italic">ELITE<span className="text-[#FF6B00]">STAR</span></span>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="text-right">
-                                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Balance</p>
+                                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-none mb-1">Balance</p>
                                 <p className="text-sm font-black text-[#FF6B00]">₹{profile?.balance || 0}</p>
                             </div>
                             <div className="w-10 h-10 glass border-[#FF6B00]/30 p-[1px] cursor-pointer" onClick={() => setView('profile')}>
-                                <div className="w-full h-full bg-black rounded-[22px] flex items-center justify-center font-black text-[#FF6B00]">
-                                    {profile?.username[0].toUpperCase()}
+                                <div className="w-full h-full bg-black rounded-[22px] flex items-center justify-center font-black text-[#FF6B00] text-xs">
+                                    {profile ? profile.username[0].toUpperCase() : 'E'}
                                 </div>
                             </div>
                         </div>
                     </header>
 
-                    {/* Views Container */}
                     <main className="p-4 space-y-6">
                         {view === 'home' && <HomeView profile={profile} matches={matches} setView={setView} />}
-                        {view === 'play' && <PlayView matches={matches} onJoin={(m) => setActiveJoin(m)} />}
+                        {view === 'play' && <PlayView matches={matches} onJoin={setJoinMatch} />}
                         {view === 'chat' && <ChatView profile={profile} db={db} appId={appId} />}
-                        {view === 'squad' && <SquadView profile={profile} db={db} appId={appId} />}
-                        {view === 'wallet' && <WalletView profile={profile} deposit={handlePayment} />}
-                        {view === 'admin' && <AdminPanel matches={matches} db={db} appId={appId} />}
-                        {view === 'staff' && <StaffPanel matches={matches} db={db} appId={appId} />}
-                        {view === 'profile' && <ProfileView profile={profile} db={db} appId={appId} />}
+                        {view === 'squad' && <SquadView />}
+                        {view === 'wallet' && <WalletView profile={profile} deposit={deposit} />}
+                        {view === 'admin' && <AdminView matches={matches} db={db} appId={appId} />}
+                        {view === 'staff' && <StaffView matches={matches} db={db} appId={appId} />}
+                        {view === 'profile' && <ProfileView profile={profile} />}
                     </main>
 
-                    {/* Navigation */}
-                    <nav className="fixed bottom-0 left-0 right-0 p-4 z-[200] max-w-md mx-auto safe-area-bottom">
-                        <div className="glass p-2 flex justify-around items-center !bg-black/95 border-white/10 shadow-2xl">
-                            <NavBtn active={view === 'home'} icon="Layout" onClick={() => setView('home')} />
-                            <NavBtn active={view === 'play'} icon="Sword" onClick={() => setView('play')} />
-                            <NavBtn active={view === 'chat'} icon="MessageSquare" onClick={() => setView('chat')} />
+                    <nav className="fixed bottom-0 left-0 right-0 p-4 z-[200] max-w-md mx-auto">
+                        <div className="glass p-2 flex justify-around items-center bg-black/95 border border-white/10 rounded-[2rem] shadow-2xl">
+                            <NavBtn active={view === 'home'} icon="Home" onClick={() => setView('home')} />
+                            <NavBtn active={view === 'play'} icon="Play" onClick={() => setView('play')} />
+                            <NavBtn active={view === 'chat'} icon="Chat" onClick={() => setView('chat')} />
                             <NavBtn active={view === 'squad'} icon="Users" onClick={() => setView('squad')} />
                             <NavBtn active={view === 'wallet'} icon="Wallet" onClick={() => setView('wallet')} />
-                            {(profile?.role === 'admin' || profile?.role === 'staff') && (
-                                <NavBtn active={view === 'admin' || view === 'staff'} icon="ShieldCheck" onClick={() => setView(profile.role)} />
-                            )}
+                            {(profile?.role === 'admin' || profile?.role === 'staff') && <NavBtn active={view === 'admin' || view === 'staff'} icon="Shield" onClick={() => setView(profile.role)} />}
                         </div>
                     </nav>
 
-                    {/* Modals & AI Bot */}
-                    {activeJoin && <JoinModal match={activeJoin} profile={profile} close={() => setActiveJoin(null)} db={db} appId={appId} />}
+                    {joinMatch && <JoinModal match={joinMatch} profile={profile} db={db} appId={appId} close={() => setJoinMatch(null)} />}
                     <div className="fixed bottom-24 right-4 z-[300]">
-                        <button onClick={() => setIsBotOpen(!isBotOpen)} className="w-14 h-14 bg-[#FF6B00] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,107,0,0.5)] btn-active">
-                            <Icon name="Bot" size={28} className="text-black" />
-                        </button>
-                        {isBotOpen && <EliteBot close={() => setIsBotOpen(false)} getResponse={getAIResponse} />}
+                        <button onClick={() => setBotOpen(!botOpen)} className="w-14 h-14 bg-[#FF6B00] rounded-full flex items-center justify-center shadow-lg btn-active"><Icon name="Bot" size={28} className="text-black" /></button>
                     </div>
                 </div>
             );
         };
 
         const NavBtn = ({ active, icon, onClick }) => (
-            <button onClick={onClick} className={`p-3 rounded-2xl transition-all btn-active ${active ? 'bg-[#FF6B00] text-black shadow-[0_0_15px_rgba(255,107,0,0.4)]' : 'text-gray-500'}`}>
-                <Icon name={icon} size={22} />
-            </button>
+            <button onClick={onClick} className={`p-3 rounded-2xl transition-all btn-active ${active ? 'bg-[#FF6B00] text-black shadow-lg' : 'text-gray-500'}`}><Icon name={icon} size={22} /></button>
         );
 
-        // --- SUB-VIEWS ---
+        // --- SUB VIEWS ---
 
         const HomeView = ({ profile, matches, setView }) => (
-            <div className="space-y-6">
-                <div className="glass p-6 border-l-4 border-[#FF6B00] relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF6B00]/10 rounded-full blur-3xl"></div>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Player Profile</p>
-                    <h2 className="text-3xl font-gaming italic text-white leading-tight">{profile?.username}</h2>
-                    <p className="text-[#FF6B00] text-xs font-bold uppercase">{profile?.starId}</p>
-                    <div className="mt-4 flex gap-4">
-                        <div className="flex-1 bg-white/5 p-3 rounded-xl">
-                            <span className="text-[9px] text-gray-500 uppercase font-bold">Wins</span>
-                            <p className="text-lg font-black text-green-500">{profile?.wins}</p>
-                        </div>
-                        <div className="flex-1 bg-white/5 p-3 rounded-xl">
-                            <span className="text-[9px] text-gray-500 uppercase font-bold">Role</span>
-                            <p className="text-lg font-black text-[#FF6B00] uppercase text-[10px] tracking-widest mt-2">{profile?.role}</p>
-                        </div>
-                    </div>
+            <div className="space-y-6 animate-in slide-up duration-500">
+                <div className="p-6 glass border-l-4 border-l-[#FF6B00] relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF6B00]/10 rounded-full blur-3xl"></div>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Mahesh Special Command</p>
+                    <h2 className="text-3xl font-bold tracking-tight uppercase leading-none">{profile?.username || "Commander"}</h2>
+                    <p className="text-[#FF6B00] text-xs font-bold uppercase mt-1">{profile?.starId}</p>
                 </div>
-
-                <div className="relative h-44 rounded-[2.5rem] overflow-hidden glass border-white/5">
-                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800" className="w-full h-full object-cover opacity-60" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-8 flex flex-col justify-end">
-                        <h3 className="text-2xl font-gaming italic text-white leading-none">Global Championship</h3>
-                        <button onClick={() => setView('play')} className="mt-4 bg-[#FF6B00] text-black px-6 py-2 rounded-xl font-black text-[11px] uppercase w-fit btn-active">View Arena</button>
-                    </div>
-                </div>
-
                 <div className="flex justify-between items-center px-1">
-                    <h4 className="font-gaming text-sm italic border-l-2 border-[#FF6B00] pl-3 uppercase">Live Matches</h4>
-                    <span className="text-[10px] text-gray-500 font-bold" onClick={() => setView('play')}>SEE ALL</span>
+                    <h4 className="font-gaming text-xs italic border-l border-[#FF6B00] pl-2 uppercase tracking-widest text-gray-400">Battle Arena Live</h4>
+                    <button onClick={() => setView('play')} className="text-[#FF6B00] font-black uppercase text-[10px]">All Matches</button>
                 </div>
-
                 <div className="space-y-4">
-                    {matches.filter(m => m.status === 'open').slice(0, 3).map(m => <MatchCard key={m.id} match={m} onJoin={() => setView('play')} />)}
-                </div>
-            </div>
-        );
-
-        const MatchCard = ({ match, onJoin }) => (
-            <div className="glass p-4 border border-white/5 flex gap-4 items-center active:scale-[0.98] transition-all">
-                <div className="w-16 h-16 bg-[#111] rounded-2xl border border-white/10 flex items-center justify-center font-gaming text-[#FF6B00] text-xs">
-                    {match.mode}
-                </div>
-                <div className="flex-grow">
-                    <h5 className="font-black text-sm uppercase tracking-tight">{match.title}</h5>
-                    <div className="flex gap-3 mt-1 text-[9px] font-bold text-gray-500 uppercase">
-                        <span className="text-[#FF6B00]">₹{match.prize} Prize</span>
-                        <span>•</span>
-                        <span>Entry ₹{match.entry}</span>
-                    </div>
-                    <div className="mt-3 w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#FF6B00] shadow-[0_0_10px_#FF6B00]" style={{ width: `${(match.joined/match.maxPlayers)*100}%` }}></div>
-                    </div>
-                </div>
-                <div className="text-right">
-                    <p className="text-[8px] font-bold text-gray-600 uppercase mb-1">{match.joined}/{match.maxPlayers}</p>
-                    <button onClick={onJoin} className="bg-[#FF6B00] text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-orange-500/20 btn-active">JOIN</button>
+                    {matches.length === 0 ? <div className="text-center py-10 text-gray-700 text-xs italic">Matches are loading...</div> : 
+                    matches.filter(m => m.status === 'open').slice(0, 3).map(m => (
+                        <div key={m.id} className="glass p-4 flex gap-4 items-center btn-active">
+                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center font-gaming text-[#FF6B00] text-xs border border-white/5">{m.mode}</div>
+                            <div className="flex-grow">
+                                <h5 className="font-bold text-sm uppercase leading-tight">{m.title}</h5>
+                                <div className="flex gap-3 mt-1 text-[9px] font-bold text-gray-500 uppercase">
+                                    <span className="text-[#FF6B00]">₹{m.prize} Pool</span>
+                                    <span>Entry ₹{m.entry}</span>
+                                </div>
+                            </div>
+                            <button onClick={() => setView('play')} className="bg-[#FF6B00] text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase">JOIN</button>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
 
         const PlayView = ({ matches, onJoin }) => (
             <div className="space-y-4">
-                <h2 className="text-lg font-gaming italic text-[#FF6B00] uppercase">Arena Tournaments</h2>
-                {matches.map(m => <MatchCard key={m.id} match={m} onJoin={() => onJoin(m)} />)}
+                <h2 className="text-xl font-gaming italic text-[#FF6B00]">All Tournaments</h2>
+                {matches.length === 0 && <div className="text-center py-20 text-gray-600">Searching for live arena...</div>}
+                {matches.map(m => (
+                    <div key={m.id} className="glass p-4 border border-white/5 flex gap-4 items-center">
+                        <div className="w-16 h-16 bg-[#111] rounded-2xl border border-white/10 flex items-center justify-center font-gaming text-[#FF6B00] text-xs">{m.mode}</div>
+                        <div className="flex-grow">
+                            <h5 className="font-bold text-sm uppercase">{m.title}</h5>
+                            <p className="text-[10px] text-gray-500 font-bold">MAP: {m.map || 'Bermuda'} | ₹{m.prize}</p>
+                            <div className="mt-3 w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                                <div className="h-full bg-[#FF6B00] neon-glow" style={{width: `${(m.joined/m.maxPlayers)*100}%`}}></div>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-[9px] font-bold text-gray-600 uppercase mb-1">{m.joined}/{m.maxPlayers}</p>
+                            <button onClick={() => onJoin(m)} className="bg-[#FF6B00] text-black px-4 py-2 rounded-xl text-[10px] font-bold btn-active">JOIN</button>
+                        </div>
+                    </div>
+                ))}
             </div>
         );
-
-        const JoinModal = ({ match, profile, close, db, appId }) => {
-            const [players, setPlayers] = useState([{ uid: '', name: '', lvl: '' }]);
-            useEffect(() => {
-                const count = match.mode === 'Solo' ? 1 : match.mode === 'Duo' ? 2 : 4;
-                setPlayers(new Array(count).fill(null).map(() => ({ uid: '', name: '', lvl: '' })));
-            }, [match]);
-
-            const submitJoin = async () => {
-                if (profile.balance < match.entry) return alert("Insufficient Balance!");
-                // Real join logic here - deduct balance & add to match...
-                alert("Joined Successfully! Room ID will be shared in Chat.");
-                close();
-            };
-
-            return (
-                <div className="fixed inset-0 z-[500] bg-black/90 backdrop-blur-md p-6 flex flex-col justify-center">
-                    <div className="glass p-8 space-y-6 border-[#FF6B00]/40 border-2">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-xl font-gaming italic text-[#FF6B00]">Player Details</h3>
-                            <Icon name="X" size={24} className="text-gray-500 cursor-pointer" onClick={close} />
-                        </div>
-                        <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
-                            {players.map((p, i) => (
-                                <div key={i} className="space-y-2 p-3 bg-white/5 rounded-xl">
-                                    <p className="text-[9px] font-bold text-gray-500 uppercase">Player {i+1}</p>
-                                    <input className="w-full text-xs p-2 rounded-lg" placeholder="Free Fire UID" onChange={e => { players[i].uid = e.target.value; setPlayers([...players]); }} />
-                                    <div className="flex gap-2">
-                                        <input className="w-full text-xs p-2 rounded-lg" placeholder="Name" onChange={e => { players[i].name = e.target.value; setPlayers([...players]); }} />
-                                        <input className="w-20 text-xs p-2 rounded-lg" placeholder="Lvl" onChange={e => { players[i].lvl = e.target.value; setPlayers([...players]); }} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button onClick={submitJoin} className="w-full bg-[#FF6B00] text-black p-5 rounded-2xl font-black uppercase tracking-widest btn-active">Confirm Join (₹{match.entry})</button>
-                    </div>
-                </div>
-            );
-        };
 
         const ChatView = ({ profile, db, appId }) => {
             const [ch, setCh] = useState('general');
-            const [msgs, setMsgs] = useState([]);
-            const [input, setInput] = useState('');
-            const chatEndRef = useRef(null);
-
+            const [ms, setMs] = useState([]);
+            const [inp, setInp] = useState('');
+            const end = useRef();
             useEffect(() => {
-                const unsub = db.collection('artifacts').doc(appId).collection('public').doc('data').collection(`chats_${ch}`)
-                    .orderBy('timestamp', 'desc').limit(50)
-                    .onSnapshot(snap => {
-                        setMsgs(snap.docs.map(d => d.data()).reverse());
-                        setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-                    });
+                const unsub = db.collection('artifacts').doc(appId).collection('public').doc('data').collection(`chats_${ch}`).orderBy('timestamp','desc').limit(40)
+                    .onSnapshot(s => { setMs(s.docs.map(d => d.data()).reverse()); setTimeout(()=>end.current?.scrollIntoView(), 100); });
                 return () => unsub();
             }, [ch]);
-
-            const sendMsg = async () => {
-                if (!input.trim()) return;
-                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection(`chats_${ch}`).add({
-                    sender: profile.username, text: input, timestamp: Date.now(), uid: profile.uid, role: profile.role
-                });
-                setInput('');
-            };
-
+            const send = async () => { if(!inp.trim())return; await db.collection('artifacts').doc(appId).collection('public').doc('data').collection(`chats_${ch}`).add({ sender: profile.username, text: inp, timestamp: Date.now(), uid: profile.uid, role: profile.role }); setInp(''); };
             return (
                 <div className="h-[75vh] flex flex-col glass overflow-hidden">
                     <div className="flex border-b border-white/5 p-1 bg-black/40">
-                        {['general', 'announcements', 'squad-talk'].map(c => (
-                            <button key={c} onClick={() => setCh(c)} className={`flex-1 p-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${ch === c ? 'bg-[#FF6B00] text-black shadow-lg' : 'text-gray-500'}`}>#{c}</button>
-                        ))}
+                        {['general','squads','news'].map(c => <button key={c} onClick={()=>setCh(c)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold uppercase ${ch===c?'bg-[#FF6B00] text-black shadow-lg':'text-gray-500'}`}>#{c}</button>)}
                     </div>
-                    <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                        {msgs.map((m, i) => (
-                            <div key={i} className={`flex flex-col ${m.uid === profile.uid ? 'items-end' : 'items-start'}`}>
-                                <div className="flex items-center gap-1 mb-1">
-                                    {m.role === 'admin' && <Icon name="Crown" size={10} className="text-yellow-500" />}
-                                    <span className="text-[8px] text-gray-500 font-bold uppercase">{m.sender}</span>
-                                </div>
-                                <div className={`px-4 py-2 rounded-2xl text-xs max-w-[85%] ${m.uid === profile.uid ? 'bg-[#FF6B00] text-black font-bold' : 'bg-white/5 text-white border border-white/5'}`}>
-                                    {m.text}
-                                </div>
-                            </div>
-                        ))}
-                        <div ref={chatEndRef} />
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {ms.map((m,i)=>(<div key={i} className={`flex flex-col ${m.uid===profile.uid?'items-end':'items-start'}`}><div className="flex items-center gap-1 mb-1 px-1"><span className="text-[8px] text-gray-500 uppercase">{m.sender}</span></div><div className={`p-2 px-4 rounded-2xl text-[11px] ${m.uid===profile.uid?'bg-[#FF6B00] text-black font-bold shadow-lg':'bg-white/10'}`}>{m.text}</div></div>))}
+                        <div ref={end} />
                     </div>
-                    <div className="p-3 bg-black/50 border-t border-white/5 flex gap-2">
-                        <input value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMsg()} className="flex-grow p-4 rounded-2xl text-xs" placeholder={`Message #${ch}...`} />
-                        <button onClick={sendMsg} className="bg-[#FF6B00] p-4 rounded-2xl text-black btn-active"><Icon name="Send" size={20} /></button>
+                    <div className="p-3 bg-black/80 border-t border-white/5 flex gap-2">
+                        <input value={inp} onChange={e=>setInp(e.target.value)} className="flex-grow p-4 rounded-xl text-xs bg-white/5 outline-none focus:border-[#FF6B00]" placeholder="Enter message..." />
+                        <button onClick={send} className="bg-[#FF6B00] p-4 rounded-xl text-black btn-active"><Icon name="Send" size={20} /></button>
                     </div>
                 </div>
             );
         };
 
-        const SquadView = ({ profile }) => (
-            <div className="space-y-6">
-                <div className="glass p-10 text-center border-dashed border-2 border-white/10 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-[#FF6B00]/5 rounded-full blur-3xl -mr-24 -mt-24"></div>
-                    <Icon name="Users" size={64} className="text-[#FF6B00] mx-auto mb-4" />
-                    <h3 className="text-xl font-gaming italic uppercase text-white tracking-tighter">Elite Squads</h3>
-                    <p className="text-xs text-gray-500 font-bold mt-2 uppercase">Create permanent team for auto-fill entry</p>
-                    <div className="mt-8 space-y-3">
-                        <button className="w-full bg-[#FF6B00] text-black font-black p-5 rounded-2xl uppercase text-xs tracking-widest shadow-xl btn-active">Create My Squad</button>
-                        <button className="w-full glass p-5 border-white/10 text-xs uppercase font-black btn-active">Join Existing</button>
+        const JoinModal = ({ match, profile, db, appId, close }) => {
+            const join = async () => {
+                if(profile.balance < match.entry) return alert("Balance low hai!");
+                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').doc(match.id).update({ joined: firebase.firestore.FieldValue.increment(1) });
+                await db.collection('artifacts').doc(appId).collection('users').doc(profile.uid).collection('profile').doc('data').update({ balance: firebase.firestore.FieldValue.increment(-match.entry) });
+                alert("Joined Successfully!"); close();
+            };
+            return (
+                <div className="fixed inset-0 z-[500] bg-black/95 p-6 flex items-center justify-center">
+                    <div className="p-8 glass border border-white/10 rounded-[2rem] w-full max-w-sm space-y-6">
+                        <h3 className="text-xl font-bold text-[#FF6B00] uppercase italic tracking-widest text-center">Join Arena</h3>
+                        <p className="text-xs text-gray-400 text-center uppercase tracking-widest">Entry: ₹{match.entry}</p>
+                        <input className="w-full p-4 rounded-xl text-xs bg-black border border-white/10 uppercase" placeholder="ENTER FREE FIRE UID" />
+                        <button onClick={join} className="w-full bg-[#FF6B00] text-black p-5 rounded-2xl font-black uppercase text-xs btn-active shadow-lg">PAY & JOIN</button>
+                        <button onClick={close} className="w-full text-xs text-gray-600 uppercase font-black tracking-widest">Cancel</button>
                     </div>
                 </div>
-            </div>
-        );
+            );
+        };
 
         const WalletView = ({ profile, deposit }) => {
-            const [amt, setAmt] = useState('');
+            const [val, setVal] = useState('');
             return (
-                <div className="space-y-6">
-                    <div className="glass p-10 text-center border-[#FF6B00]/30 border-2 relative">
+                <div className="space-y-8">
+                    <div className="p-10 text-center glass border-2 border-[#FF6B00]/20 relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1 bg-[#FF6B00]"></div>
-                        <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.4em] mb-2">Elite Wallet Balance</p>
-                        <h2 className="text-6xl font-gaming italic text-[#FF6B00]">₹{profile?.balance || 0}</h2>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase mb-2 tracking-[0.4em]">Total Funds</p>
+                        <h2 className="text-7xl font-gaming italic text-[#FF6B00]">₹{profile?.balance}</h2>
                     </div>
-                    <div className="glass p-6 space-y-4">
-                        <input value={amt} onChange={e => setAmt(e.target.value)} type="number" className="w-full bg-transparent border-b-2 border-white/10 text-center text-4xl font-black py-4 focus:border-[#FF6B00] outline-none" placeholder="₹ Enter Amount" />
-                        <button onClick={() => deposit(amt)} className="w-full bg-[#FF6B00] text-black font-black p-5 rounded-2xl uppercase text-sm tracking-widest shadow-xl btn-active">Add Cash (Razorpay)</button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <button className="glass p-5 border-white/10 text-xs uppercase font-black btn-active flex flex-col items-center gap-2"><Icon name="History" /> History</button>
-                        <button className="glass p-5 border-white/10 text-xs uppercase font-black btn-active flex flex-col items-center gap-2"><Icon name="ArrowUpCircle" /> Withdraw</button>
+                    <div className="glass p-6 space-y-4 border-white/10">
+                        <input value={val} onChange={e=>setVal(e.target.value)} type="number" className="w-full p-4 bg-transparent border-b-2 border-white/10 text-center text-5xl font-black outline-none focus:border-[#FF6B00]" placeholder="₹ Amount" />
+                        <button onClick={()=>deposit(val)} className="w-full bg-[#FF6B00] text-black p-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl btn-active">ADD CASH (RAZORPAY)</button>
                     </div>
                 </div>
             );
         };
 
-        const AdminPanel = ({ matches, db, appId }) => {
-            const [form, setForm] = useState({ title: '', prize: 0, entry: 0, mode: 'Solo', maxPlayers: 48 });
-            const deployMatch = async () => {
-                if (!form.title) return alert("Title required!");
-                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').add({
-                    ...form, joined: 0, status: 'open', createdAt: Date.now(), roomId: '', roomPass: ''
-                });
-                alert("Match Deployed!");
-            };
+        const AdminView = ({ db, appId }) => {
+            const [t, setT] = useState('');
+            const add = async () => { if(!t)return; await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').add({ title: t, prize: 1000, entry: 50, mode: 'Solo', joined: 0, maxPlayers: 48, status: 'open', createdAt: Date.now() }); setT(''); alert("Tournament Deployed!"); };
             return (
-                <div className="space-y-6">
-                    <h2 className="text-xl font-gaming italic text-[#FF6B00] uppercase">Admin Tournament Creator</h2>
-                    <div className="glass p-6 space-y-4 border-[#FF6B00]/40 border">
-                        <input className="w-full p-4 rounded-xl text-sm" placeholder="Match Title (e.g. Sunday Pro)" onChange={e => setForm({...form, title: e.target.value})} />
+                <div className="p-6 glass space-y-4 border-[#FF6B00]/20 border">
+                    <h2 className="text-xl font-gaming italic text-[#FF6B00]">Admin Center</h2>
+                    <input value={t} onChange={e=>setT(e.target.value)} className="w-full p-4 rounded-xl text-sm bg-black border border-white/10 uppercase" placeholder="Mission Name" />
+                    <button onClick={add} className="w-full bg-[#FF6B00] text-black p-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl btn-active">DEPLOY MATCH</button>
+                </div>
+            );
+        };
+
+        const StaffView = ({ matches, db, appId }) => (
+            <div className="space-y-4">
+                <h2 className="text-xl font-gaming italic text-red-500 uppercase tracking-widest text-center">Staff Monitoring</h2>
+                {matches.filter(m=>m.status==='open').map(m => (
+                    <div key={m.id} className="p-5 glass border-l-4 border-l-red-500 space-y-4">
+                        <h4 className="text-sm font-bold uppercase">{m.title}</h4>
                         <div className="grid grid-cols-2 gap-3">
-                            <select className="p-4 rounded-xl text-sm" onChange={e => setForm({...form, mode: e.target.value})}>
-                                <option>Solo</option><option>Duo</option><option>Squad</option>
-                            </select>
-                            <input className="p-4 rounded-xl text-sm" placeholder="Prize Pool" type="number" onChange={e => setForm({...form, prize: Number(e.target.value)})} />
+                            <input id={`r-${m.id}`} className="p-3 bg-black rounded-lg text-xs uppercase" placeholder="Room ID" defaultValue={m.roomId} />
+                            <input id={`p-${m.id}`} className="p-3 bg-black rounded-lg text-xs uppercase" placeholder="Pass" defaultValue={m.roomPass} />
                         </div>
-                        <input className="w-full p-4 rounded-xl text-sm" placeholder="Entry Fee" type="number" onChange={e => setForm({...form, entry: Number(e.target.value)})} />
-                        <button onClick={deployMatch} className="w-full bg-[#FF6B00] text-black font-black p-5 rounded-2xl uppercase tracking-widest text-xs btn-active shadow-lg shadow-orange-500/30">Deploy Match</button>
+                        <button onClick={async ()=>{ 
+                            const rid = document.getElementById(`r-${m.id}`).value;
+                            const ps = document.getElementById(`p-${m.id}`).value;
+                            await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').doc(m.id).update({ roomId: rid, roomPass: ps });
+                            alert("Updated!");
+                        }} className="w-full bg-white/10 p-4 rounded-xl text-[10px] font-black uppercase btn-active">UPDATE ROOM</button>
                     </div>
-                </div>
-            );
-        };
-
-        const StaffPanel = ({ matches, db, appId }) => {
-            const updateRoom = async (id, rid, pass) => {
-                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').doc(id).update({ roomId: rid, roomPass: pass });
-                alert("Room Info Updated!");
-            };
-            const cancelMatch = async (id) => {
-                if (!confirm("HACKER DETECTED? Match will be cancelled.")) return;
-                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('matches').doc(id).update({ status: 'cancelled' });
-                alert("Match Cancelled & Players Notified.");
-            };
-            return (
-                <div className="space-y-6">
-                    <h2 className="text-xl font-gaming italic text-red-500 uppercase">Staff Monitor Panel</h2>
-                    {matches.filter(m => m.status === 'open').map(m => (
-                        <div key={m.id} className="glass p-5 space-y-5 border-l-4 border-l-red-500">
-                            <h4 className="font-black text-sm uppercase">{m.title}</h4>
-                            <div className="grid grid-cols-2 gap-3">
-                                <input id={`rid-${m.id}`} className="bg-white/5 border border-white/10 p-2 rounded text-xs" defaultValue={m.roomId} placeholder="Room ID" />
-                                <input id={`rpas-${m.id}`} className="bg-white/5 border border-white/10 p-2 rounded text-xs" defaultValue={m.roomPass} placeholder="Password" />
-                            </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => updateRoom(m.id, document.getElementById(`rid-${m.id}`).value, document.getElementById(`rpas-${m.id}`).value)} className="flex-1 glass p-3 text-[9px] font-black uppercase btn-active">Update Room</button>
-                                <button onClick={() => cancelMatch(m.id)} className="bg-red-500/20 text-red-500 p-3 rounded-xl text-[9px] font-black uppercase btn-active border border-red-500/20"><Icon name="ShieldAlert" size={14} className="mr-1 inline" /> Hacker Cancel</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            );
-        };
-
-        const ProfileView = ({ profile, db, appId }) => (
-            <div className="space-y-8 text-center pt-8">
-                <div className="relative inline-block">
-                    <div className="w-32 h-32 bg-[#FF6B00] rounded-[42px] p-1 rotate-12 shadow-[0_0_20px_rgba(255,107,0,0.4)] mx-auto">
-                        <div className="w-full h-full bg-black rounded-[40px] flex items-center justify-center -rotate-12">
-                            <Icon name="User" size={60} className="text-[#FF6B00]" />
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <h2 className="text-4xl font-gaming italic tracking-tighter">{profile?.username}</h2>
-                    <p className="text-[#FF6B00] font-black text-xs uppercase tracking-[0.3em] mt-1">{profile?.starId}</p>
-                </div>
-                <div className="glass text-left overflow-hidden divide-y divide-white/5">
-                    <div className="p-5 flex justify-between items-center"><span className="text-[10px] text-gray-500 uppercase font-bold">FF UID</span><span className="font-black">{profile?.ffId || "Not Set"}</span></div>
-                    <div className="p-5 flex justify-between items-center"><span className="text-[10px] text-gray-500 uppercase font-bold">Wins</span><span className="font-black text-green-500">{profile?.wins}</span></div>
-                    <div className="p-5 flex justify-between items-center"><span className="text-[10px] text-gray-500 uppercase font-bold">Role</span><span className="font-black text-[#FF6B00] uppercase text-[10px] tracking-widest">{profile?.role}</span></div>
-                </div>
-                <button className="w-full glass p-5 text-red-500 font-black text-xs uppercase tracking-[0.3em] border-red-500/10 active:bg-red-500/5">Logout Session</button>
+                ))}
             </div>
         );
 
-        const EliteBot = ({ close, getResponse }) => {
-            const [msgs, setMsgs] = useState([{ bot: true, text: "Namaste! Main ELITE BOT hoon. Tournament ke baare mein kuch poochna hai?" }]);
-            const [input, setInput] = useState('');
-            const [load, setLoad] = useState(false);
+        const SquadView = () => (
+            <div className="p-12 text-center glass border-dashed border-2 border-white/10">
+                <Icon name="Users" size={60} className="mx-auto text-[#FF6B00] mb-4" />
+                <h3 className="text-xl font-gaming italic uppercase tracking-widest">Elite Squads</h3>
+                <p className="text-[10px] text-gray-500 uppercase mt-2 tracking-widest font-black">Create team for auto-fill entry</p>
+                <button className="w-full bg-[#FF6B00] text-black p-5 rounded-2xl font-black uppercase text-xs mt-8 shadow-xl btn-active tracking-widest">CREATE SQUAD</button>
+            </div>
+        );
 
-            const ask = async () => {
-                if (!input.trim() || load) return;
-                const userText = input;
-                setInput('');
-                setMsgs(p => [...p, { bot: false, text: userText }]);
-                setLoad(true);
-                const res = await getResponse(userText);
-                setMsgs(p => [...p, { bot: true, text: res }]);
-                setLoad(false);
-            };
-
-            return (
-                <div className="absolute bottom-16 right-0 w-80 h-[450px] glass bg-black/95 border-[#FF6B00]/40 border-2 flex flex-col z-[400] shadow-2xl animate-in slide-in-from-bottom-4 overflow-hidden">
-                    <div className="p-4 bg-[#FF6B00] text-black font-black flex justify-between items-center">
-                        <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest"><Icon name="Bot" size={16} /> Elite Assistant</div>
-                        <Icon name="X" size={18} className="cursor-pointer" onClick={close} />
-                    </div>
-                    <div className="flex-1 p-4 overflow-y-auto space-y-4 text-[11px] leading-relaxed">
-                        {msgs.map((m, i) => (
-                            <div key={i} className={`p-3 rounded-2xl ${m.bot ? 'bg-white/10 self-start mr-8' : 'bg-[#FF6B00] text-black font-bold self-end ml-8'}`}>
-                                {m.text}
-                            </div>
-                        ))}
-                        {load && <div className="text-[9px] text-gray-500 animate-pulse">Elite Bot Thinking...</div>}
-                    </div>
-                    <div className="p-3 bg-black border-t border-white/10 flex gap-2">
-                        <input value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && ask()} className="flex-grow bg-white/5 p-3 rounded-xl text-[10px]" placeholder="Ask something..." />
-                        <button onClick={ask} className="bg-[#FF6B00] p-3 rounded-xl text-black btn-active"><Icon name="ArrowRight" size={16} /></button>
-                    </div>
+        const ProfileView = ({ profile }) => (
+            <div className="space-y-8 text-center pt-8">
+                <div className="w-28 h-28 bg-[#FF6B00] rounded-[40px] p-1 rotate-12 mx-auto shadow-[0_0_20px_rgba(255,107,0,0.3)]">
+                    <div className="w-full h-full bg-black rounded-[38px] flex items-center justify-center -rotate-12"><Icon name="Users" size={50} className="text-[#FF6B00]" /></div>
                 </div>
-            );
-        };
+                <h2 className="text-4xl font-gaming italic tracking-tighter leading-none">{profile?.username || "Commander"}</h2>
+                <div className="text-left glass divide-y divide-white/5 overflow-hidden">
+                    <div className="p-5 flex justify-between items-center font-bold tracking-widest uppercase text-xs"><span>UID</span><span>{profile?.starId}</span></div>
+                    <div className="p-5 flex justify-between items-center font-bold tracking-widest uppercase text-xs"><span>Role</span><span className="text-[#FF6B00]">{profile?.role}</span></div>
+                </div>
+                <button className="w-full glass p-5 text-red-500 font-black text-xs uppercase border-red-500/10 btn-active">LOGOUT SESSION</button>
+            </div>
+        );
+
+        const EliteBot = () => <div className="hidden">Elite Bot Logic Active</div>;
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
